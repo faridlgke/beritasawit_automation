@@ -254,15 +254,6 @@
     <h2 id="j-desain">Desain carousel</h2>
     <p class="lead">Carousel dan kiriman tunggal 1080 kali 1350 yang dirender dari draf dengan warna, logo, dan huruf BeritaSawit. Tiap slide membawa label (AUTOMATED) di kakinya. Klik "Buka carousel" untuk melihat seluruh slide berikut caption yang akan dikirim ke media sosial. Klik gambar untuk ukuran penuh.</p>
     <div class="blok"><div class="galeri" id="galeri"><div class="state">memuat…</div></div></div>
-    <dialog class="lihat" id="lihat" aria-labelledby="lihat-judul">
-      <div class="kep"><h4 id="lihat-judul"></h4><button id="lihat-tutup" type="button" class="ghost">Tutup</button></div>
-      <div class="slide-strip" id="lihat-slide"></div>
-      <div class="caption">
-        <h5>Caption untuk media sosial <button id="lihat-salin" type="button" class="ghost">Salin caption</button></h5>
-        <pre id="lihat-caption"></pre>
-        <div class="ringkas" id="lihat-ringkas"></div>
-      </div>
-    </dialog>
   </section>
 
   <section class="lembar" id="p-konfirmasi" role="tabpanel" hidden>
@@ -285,7 +276,21 @@
         <tbody><tr><td colspan="7" class="state">memuat…</td></tr></tbody>
       </table></div>
     </div>
+    <div class="blok">
+      <h3>Arsip yang sudah tayang <span id="arsip-ket">kiriman mesin lama (carousel-engine), Juli sampai Agustus 2026, lewat gerbang WhatsApp dan Postiz</span></h3>
+      <div class="galeri" id="arsip"><div class="state">memuat…</div></div>
+    </div>
   </section>
+
+  <dialog class="lihat" id="lihat" aria-labelledby="lihat-judul">
+    <div class="kep"><h4 id="lihat-judul"></h4><button id="lihat-tutup" type="button" class="ghost">Tutup</button></div>
+    <div class="slide-strip" id="lihat-slide"></div>
+    <div class="caption">
+      <h5>Caption untuk media sosial <button id="lihat-salin" type="button" class="ghost">Salin caption</button></h5>
+      <pre id="lihat-caption"></pre>
+      <div class="ringkas" id="lihat-ringkas"></div>
+    </div>
+  </dialog>
 
   <footer>
     Dibaca langsung dari basis data BeritaSawit, baca saja, isi penuh bahan tidak dibuka. Semua konten di sini dibuat mesin dan membawa label (AUTOMATED). Jam dalam WIB. Scraping 05.00, 10.00, 15.00, 20.00, triase dan copywriting 06.40.
@@ -611,10 +616,11 @@
       r.audiens ? "audiens " + esc(r.audiens) : "",
       r.pilar ? "pilar " + esc(r.pilar) : "",
       r.cta ? "CTA: " + esc(r.cta) : "",
-      '<a class="tautan" href="' + esc(r.link) + '" target="_blank" rel="noopener noreferrer">sumber asli</a>'
+      r.tayang_wib ? "tayang " + esc(fmtWib(r.tayang_wib)) : "",
+      r.link ? '<a class="tautan" href="' + esc(r.link) + '" target="_blank" rel="noopener noreferrer">sumber asli</a>' : ""
     ].filter(Boolean).join("<span>·</span>");
     var kotak = el("lihat");
-    document.querySelectorAll("#galeri .item").forEach(function (it) { it.classList.toggle("aktif", it.getAttribute("data-kode") === kode); });
+    document.querySelectorAll("#galeri .item, #arsip .item").forEach(function (it) { it.classList.toggle("aktif", it.getAttribute("data-kode") === kode); });
     if (history.replaceState) history.replaceState(null, "", "#desain/" + kode);
     if (!kotak.open) { if (kotak.showModal) kotak.showModal(); else kotak.setAttribute("open", ""); }
     kotak.scrollTop = 0;
@@ -636,6 +642,30 @@
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function () { selesai(true); }, function () { selesai(false); });
     else { var ta = document.createElement("textarea"); ta.value = t; document.body.appendChild(ta); ta.select(); try { selesai(document.execCommand("copy")); } catch (e) { selesai(false); } document.body.removeChild(ta); }
   });
+
+  function gambarArsip(rows) {
+    var g = el("arsip");
+    if (!rows.length) { g.innerHTML = '<div class="state">Belum ada arsip. Diisi konten/arsip_lama.py dari tabel content_review mesin lama.</div>'; return; }
+    rows.forEach(function (r) {
+      KONTEN[r.kode] = { kode: r.kode, judul_panel: r.judul, caption: r.caption, jumlah_slide: r.jumlah_slide, gambar_path: r.gambar_path,
+        status: "terbit", bentuk: r.mode === "single" ? "tunggal" : "carousel", format: r.mode, link: null, tayang_wib: r.tayang_wib, slides: [] };
+    });
+    g.innerHTML = rows.map(function (r) {
+      var u = urlGambar(r.gambar_path), n = Number(r.jumlah_slide || 0), tunggal = n <= 1;
+      var kanal = (r.channels || []).join(", ");
+      return '<article class="item" data-kode="' + esc(r.kode) + '"><a href="' + esc(u) + '" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="' + esc(u) + '" alt="Sampul ' + esc(r.kode) + '"></a>' +
+        '<div class="j">' + esc(r.judul || "") + '</div>' +
+        '<div class="m"><span class="s ok">tayang ' + esc(fmtWib(r.tayang_wib)) + '</span><span class="kode">' + esc(r.kode) + "</span></div>" +
+        (kanal ? '<div class="kode" style="margin-top:4px">' + esc(kanal) + "</div>" : "") +
+        '<button type="button" class="ghost buka" data-kode="' + esc(r.kode) + '">' + (tunggal ? "Buka kiriman" : "Buka carousel · " + n + " slide") + "</button></article>";
+    }).join("");
+    g.querySelectorAll("button.buka").forEach(function (b) { b.addEventListener("click", function () { bukaKarusel(b.getAttribute("data-kode")); }); });
+    el("arsip-ket").textContent = rows.length + " kiriman mesin lama (carousel-engine), Juli sampai Agustus 2026, lewat gerbang WhatsApp dan Postiz";
+    var c6 = el("c6");
+    if (c6.textContent === "0" || c6.textContent === "–") { c6.innerHTML = "0<small>+" + rows.length + "</small>"; el("k6").innerHTML = '<span class="dot ok"></span>' + rows.length + " arsip lama"; }
+    var awal = (location.hash || "").split("/")[1];
+    if (awal && KONTEN[awal] && !el("lihat").open) bukaKarusel(awal);
+  }
 
   function gambarKonfirmasi(rows) {
     var tb = document.querySelector("#konfirmasi tbody");
@@ -682,6 +712,9 @@
       }),
       ambil("rk_terbit_terbaru?select=*" + B + "&limit=60").then(gambarTerbit).catch(function (e) {
         document.querySelector("#terbit tbody").innerHTML = '<tr><td colspan="7" class="state err">' + esc(pesanGalat(e, "rk_terbit_terbaru", "sql/003")) + "</td></tr>";
+      }),
+      ambil("rk_arsip_terbaru?select=*" + B + "&limit=120").then(gambarArsip).catch(function (e) {
+        el("arsip").innerHTML = '<div class="state err">' + esc(pesanGalat(e, "rk_arsip_terbaru", "sql/007")) + "</div>";
       })
     ];
     muatDaftar(false);
