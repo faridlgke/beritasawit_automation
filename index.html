@@ -280,6 +280,13 @@
       <h3>Arsip yang sudah tayang <span id="arsip-ket">kiriman mesin lama (carousel-engine), Juli sampai Agustus 2026, lewat gerbang WhatsApp dan Postiz</span></h3>
       <div class="galeri" id="arsip"><div class="state">memuat…</div></div>
     </div>
+    <div class="blok">
+      <h3>Riwayat terbit Postiz mesin lama <span id="ledger-ket">semua yang pernah dijadwalkan ke Instagram sejak Juli 2026, termasuk sebelum gerbang tinjauan ada</span></h3>
+      <div class="scroll"><table id="ledger">
+        <thead><tr><th>Tayang</th><th>Jenis</th><th>Kanal</th><th>Tema</th><th>Judul artikel</th></tr></thead>
+        <tbody><tr><td colspan="5" class="state">memuat…</td></tr></tbody>
+      </table></div>
+    </div>
   </section>
 
   <dialog class="lihat" id="lihat" aria-labelledby="lihat-judul">
@@ -667,6 +674,16 @@
     if (awal && KONTEN[awal] && !el("lihat").open) bukaKarusel(awal);
   }
 
+  function gambarLedger(rows) {
+    var tb = document.querySelector("#ledger tbody");
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="5" class="state">Ledger kosong.</td></tr>'; return; }
+    tb.innerHTML = rows.map(function (r) {
+      return "<tr><td>" + esc(fmtWib(r.tayang_wib)) + "</td><td>" + tag(r.content_type) + "</td><td>" + esc(r.channel || "") + '</td><td class="redup">' + esc(r.theme || "") + "</td>" +
+        '<td class="lebar">' + esc(r.title || ("artikel " + (r.article_id || "").slice(0, 8))) + "</td></tr>";
+    }).join("");
+    el("ledger-ket").textContent = rows.length + " kiriman dijadwalkan lewat Postiz sejak Juli 2026, termasuk sebelum gerbang tinjauan ada";
+  }
+
   function gambarKonfirmasi(rows) {
     var tb = document.querySelector("#konfirmasi tbody");
     if (!rows.length) { tb.innerHTML = '<tr><td colspan="6" class="state">Belum ada konten.</td></tr>'; return; }
@@ -715,6 +732,9 @@
       }),
       ambil("rk_arsip_terbaru?select=*" + B + "&limit=120").then(gambarArsip).catch(function (e) {
         el("arsip").innerHTML = '<div class="state err">' + esc(pesanGalat(e, "rk_arsip_terbaru", "sql/007")) + "</div>";
+      }),
+      ambil("rk_ledger_lama?select=*" + B + "&limit=200").then(gambarLedger).catch(function (e) {
+        document.querySelector("#ledger tbody").innerHTML = '<tr><td colspan="5" class="state err">' + esc(pesanGalat(e, "rk_ledger_lama", "sql/007b")) + "</td></tr>";
       })
     ];
     muatDaftar(false);
