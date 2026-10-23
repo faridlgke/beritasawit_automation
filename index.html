@@ -119,7 +119,26 @@
   .heat td.c.h { color: var(--accent); font-weight: 600; }
   .heat th.num { text-align: center; padding-inline: 4px; }
   tr.buka { cursor: pointer; } tr.buka:hover td.j { color: var(--accent); }
-  tr.isi td { white-space: normal; font-size: 0.9rem; line-height: 1.6; padding: 4px 0 20px; color: var(--ink); max-width: 76ch; }
+  tr.isi td { white-space: normal; font-size: 0.9rem; line-height: 1.6; padding: 6px 0 28px; color: var(--ink); }
+  .rinci { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px 36px; padding: 22px 24px; background: var(--hover); border-radius: 14px; }
+  .rinci h6 { margin: 0 0 12px; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); }
+  .rinci .no { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font: 600 0.75rem/26px var(--sans); text-align: center; }
+  .rinci .sampul-j { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; font-family: var(--judul); font-size: 1.02rem; line-height: 1.35; }
+  .rinci .sampul-j b { font-weight: 700; }
+  .rinci .slide-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .rinci .slide-daftar li { display: flex; gap: 12px; align-items: flex-start; }
+  .rinci .slide-daftar .no { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .rinci .slide-daftar b { display: block; font-weight: 600; margin-bottom: 2px; }
+  .rinci .slide-daftar p { margin: 0; color: var(--ink-2); max-width: 60ch; }
+  .rinci .cap p { margin: 0 0 12px; max-width: 62ch; line-height: 1.7; }
+  .rinci .kotak { margin-top: 16px; padding: 14px 16px; background: var(--bg); border: 1px solid var(--rule); border-radius: 10px; }
+  .rinci .kotak h6 { margin-bottom: 6px; }
+  .rinci .kotak p { margin: 0; }
+  .rinci strong { font-weight: 600; color: var(--ink); }
+  .rinci .kutip p { font-style: italic; }
+  .rinci .kutip span { display: block; margin-top: 6px; color: var(--ink-2); font-size: 0.84rem; }
+  .rinci .kaki-rinci { grid-column: 1 / -1; display: grid; gap: 4px; padding-top: 14px; border-top: 1px solid var(--rule-2); color: var(--ink-2); font-size: 0.82rem; }
+  @media (max-width: 760px) { .rinci { grid-template-columns: minmax(0, 1fr); padding: 18px 16px; position: sticky; left: 0; width: calc(100vw - 32px); box-sizing: border-box; } }
   tr.isi .cat { display: block; margin-top: 10px; color: var(--ink-2); font-size: 0.82rem; }
   tr.isi ol { margin: 0 0 12px; padding-left: 20px; }
   tr.isi ol li { margin: 4px 0; }
@@ -192,7 +211,7 @@
     <div class="blok">
       <h3>Per sumber <span>diurutkan dari yang paling baru menyumbang</span></h3>
       <div class="scroll"><table id="denyut">
-        <thead><tr><th>Sumber</th><th>Status</th><th class="num">Total</th><th>Terbit terakhir</th><th>Masuk terakhir</th><th class="num">Jam lalu</th></tr></thead>
+        <thead><tr><th>Sumber</th><th>Status</th><th class="num">Total</th><th>Berita terbaru</th><th>Terakhir scraping</th></tr></thead>
         <tbody><tr><td colspan="6" class="state">memuat…</td></tr></tbody>
       </table></div>
     </div>
@@ -346,6 +365,16 @@
     var m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
     return m ? m[3] + "/" + m[2] + " " + m[4] + "." + m[5] : s;
   }
+  var BULAN = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  function hariIniWib() { return new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10); }
+  function fmtHari(s) { var m = String(s || "").match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? Number(m[3]) + " " + BULAN[Number(m[2]) - 1] : (s || "–"); }
+  // "14.30 WIB" untuk hari ini, "22 Oktober, 14.30 WIB" untuk hari lain
+  function fmtPukul(s) {
+    var m = String(s || "").match(/^(\d{4}-(\d{2})-(\d{2}))[T ](\d{2}):(\d{2})/);
+    if (!m) return s || "–";
+    var pukul = m[4] + "." + m[5] + " WIB";
+    return m[1] === hariIniWib() ? pukul : Number(m[3]) + " " + BULAN[Number(m[2]) - 1] + ", " + pukul;
+  }
   function fmtTgl(s) { var m = String(s || "").match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? m[3] + "/" + m[2] : (s || "–"); }
   function ambil(path) {
     return fetch(URL_ + path, { headers: { apikey: KEY, Authorization: "Bearer " + KEY } }).then(function (r) {
@@ -435,8 +464,8 @@
       var st = statusDenyut(r); n[st[1]]++;
       return "<tr><td>" + esc(nama(r.source)) + ' <span class="kode">' + esc(r.source) + "</span></td>" +
         '<td><span class="s ' + st[0] + '">' + st[1] + "</span></td>" +
-        '<td class="num">' + esc(r.total) + "</td><td>" + esc(fmtTgl(r.terbit_terakhir)) + "</td>" +
-        "<td>" + esc(fmtWib(r.masuk_terakhir_wib)) + '</td><td class="num">' + esc(r.jam_sejak_masuk) + "</td></tr>";
+        '<td class="num">' + esc(r.total) + "</td><td>" + esc(fmtHari(r.terbit_terakhir)) + "</td>" +
+        "<td>" + esc(fmtPukul(r.masuk_terakhir_wib)) + "</td></tr>";
     }).join("");
     el("l-denyut").textContent = "Sehat " + n.sehat + ", waspada " + n.waspada + ", mati " + n.mati + ", terbit jarang " + n["terbit jarang"] +
       ". Scraping berjalan 05.00, 10.00, 15.00, dan 20.00 WIB. Sehat berarti menyumbang bahan dalam 30 jam. Sumber resmi dan kueri bertopik sempit memang terbit beberapa kali sebulan, jadi tidak dihitung mati.";
@@ -536,7 +565,7 @@
         return { "Terbit": r.published_time, "Penerbit": r.penerbit, "Sumber": nama(r.source), "Kode sumber": r.source, "Judul": dekode(r.news_title), "Ringkasan": dekode(r.ringkas),
           "Tautan": r.link, "Jenis": r.jenis, "Fokus": r.fokus, "Jadi draf": r.is_processed ? "ya" : "belum", "Masuk (WIB)": r.masuk_wib, "ID": r.id };
       });
-      var denyut = res[1].map(function (r) { return { "Sumber": nama(r.source), "Kode sumber": r.source, "Total": Number(r.total), "Terbit terakhir": r.terbit_terakhir, "Masuk terakhir (WIB)": r.masuk_terakhir_wib, "Jam sejak masuk": Number(r.jam_sejak_masuk) }; });
+      var denyut = res[1].map(function (r) { return { "Sumber": nama(r.source), "Kode sumber": r.source, "Total": Number(r.total), "Berita terbaru": r.terbit_terakhir, "Terakhir scraping (WIB)": r.masuk_terakhir_wib }; });
       var pantau = res[2].map(function (r) { return { "Sumber": nama(r.source), "Kode sumber": r.source, "Terbit": r.published_time, "Bahan": Number(r.artikel), "Terakhir masuk (WIB)": r.terakhir_masuk_wib }; });
       var konten = res[3].map(function (r) { return { "Kode": r.kode, "Status": r.status, "Format": r.format, "Audiens": r.audiens, "Pilar": r.pilar, "Judul sampul": r.judul_panel, "Slide": (r.slides || []).map(function (s, i) { return (i + 1) + ". " + s.judul + ": " + s.isi; }).join("\n"), "Caption": r.caption, "CTA": r.cta, "Penerbit": r.penerbit, "Judul asli": dekode(r.news_title), "Tautan": r.link, "Catatan model": r.catatan_model, "Dibuat (WIB)": r.dibuat_wib, "Dikirim (WIB)": r.dikirim_wib, "Diputus (WIB)": r.diputus_wib, "Alasan status": r.alasan_status }; });
       var prospek = res[4].map(function (r) { return { "Tanggal triase": r.tanggal, "Terbit": r.published_time, "Penerbit": r.penerbit, "Judul": dekode(r.news_title), "Tautan": r.link, "Catatan model": r.alasan, "Skor": Number(r.skor) }; });
@@ -557,16 +586,26 @@
   }
   el("unduh").addEventListener("click", unduhExcel);
 
+  function tebal(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"); }
   function gambarDraf(rows) {
     var tb = document.querySelector("#draf tbody");
     if (!rows.length) { tb.innerHTML = '<tr><td colspan="6" class="state">Belum ada draf.</td></tr>'; return; }
     tb.innerHTML = rows.map(function (r) {
-      var slides = (r.slides || []).map(function (s) { return "<li><b>" + esc(s.judul) + "</b> " + esc(s.isi) + "</li>"; }).join("");
+      var d = r.data || {};
+      var slides = (r.slides || []).map(function (s, i) { return '<li><span class="no">' + (i + 2) + '</span><div><b>' + esc(s.judul) + "</b><p>" + tebal(s.isi) + "</p></div></li>"; }).join("");
+      if (!slides && d.butir) slides = d.butir.map(function (b, i) { return '<li><span class="no">' + (i + 2) + '</span><div><b>' + esc(b.judul) + "</b><p>" + tebal(b.ringkasan) + "</p></div></li>"; }).join("");
+      var paragraf = String(r.caption || "").split(/\n\s*\n/).map(function (p) { return p.trim(); }).filter(Boolean)
+        .map(function (p) { return "<p>" + tebal(p).replace(/\n/g, "<br>") + "</p>"; }).join("");
+      var kutipan = d.kutipan ? '<div class="kotak kutip"><h6>Slide kutipan</h6><p>“' + esc(d.kutipan.teks) + '”</p><span>' + esc(d.kutipan.nama) + (d.kutipan.jabatan ? ", " + esc(d.kutipan.jabatan) : "") + "</span></div>" : "";
+      var rinci = '<div class="rinci">' +
+        '<section class="kol-slide"><h6>Isi slide</h6><div class="sampul-j"><span class="no">1</span><b>' + esc(r.judul_panel) + "</b></div>" + (slides ? '<ol class="slide-daftar">' + slides + "</ol>" : "") + kutipan + "</section>" +
+        '<section class="kol-cap"><h6>Caption</h6><div class="cap">' + (paragraf || '<p class="redup">Belum ada caption.</p>') + "</div>" +
+        (r.komen ? '<div class="kotak"><h6>Komentar pertama</h6><p>' + esc(r.komen) + "</p></div>" : "") + "</section>" +
+        '<footer class="kaki-rinci"><span>Sumber asli: <a class="tautan" href="' + esc(r.link) + '" target="_blank" rel="noopener noreferrer">' + esc(dekode(r.news_title) || r.penerbit || "rangkuman sepekan") + "</a></span>" +
+        (r.catatan_model ? '<span>Catatan model: ' + esc(r.catatan_model) + "</span>" : "") + "</footer></div>";
       return '<tr class="buka"><td class="mono">' + esc(r.kode) + "</td><td>" + status(STATUS_KONTEN, r.status) + "</td>" +
         '<td class="lebar j">' + esc(r.judul_panel) + "</td><td>" + tag(FORMAT[r.format] || r.format) + tag(r.audiens) + '</td><td class="redup">' + esc(r.penerbit || nama(r.source)) + '</td><td class="redup">' + esc(fmtWib(r.dibuat_wib)) + "</td></tr>" +
-        '<tr class="isi" hidden><td colspan="6">' + (slides ? "<ol>" + slides + "</ol>" : "") + esc(r.caption) +
-        '<span class="cat">Sumber asli: <a class="tautan" href="' + esc(r.link) + '" target="_blank" rel="noopener noreferrer">' + esc(dekode(r.news_title)) + "</a>" +
-        (r.catatan_model ? "<br>Catatan model: " + esc(r.catatan_model) : "") + "</span></td></tr>";
+        '<tr class="isi" hidden><td colspan="6">' + rinci + "</td></tr>";
     }).join("");
     tb.querySelectorAll("tr.buka").forEach(function (tr) { tr.addEventListener("click", function () { var isi = tr.nextElementSibling; if (isi) isi.hidden = !isi.hidden; }); });
     var terender = rows.filter(function (r) { return r.gambar_path; }).length;
