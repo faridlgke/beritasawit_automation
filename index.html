@@ -7,7 +7,7 @@
 <meta name="description" content="Pantauan alur konten otomatis BeritaSawit.id dari denyut scraping sampai terbit, dibaca langsung dari basis datanya.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
 <style>
   :root {
     --bg: #FFFFFF; --ink: #212121; --ink-2: #5B6B59; --ink-3: #A3ACA3; --rule: #E6EDE4; --rule-2: #CFDACB;
@@ -374,6 +374,9 @@
 
   var dekoder = document.createElement("textarea");
   function dekode(s) { dekoder.innerHTML = String(s == null ? "" : s); return dekoder.value; }
+  // Tautan dari data scraping hanya boleh http atau https, supaya "javascript:" di
+  // kolom link tidak bisa jalan saat diklik pengunjung.
+  function aman(u) { u = String(u || ""); return /^https?:\/\//i.test(u) ? u : "#"; }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function nama(id) { return NAMA[id] || id; }
   function id_(x) { return Number(x || 0).toLocaleString("id-ID"); }
@@ -532,7 +535,7 @@
     var st = r.is_processed ? '<span class="s biru">jadi draf</span>' : '<span class="s">belum diproses</span>';
     var ringkas = r.ringkas ? '<span class="r">' + esc(dekode(r.ringkas)) + "</span>" : "";
     return "<tr><td>" + esc(fmtTgl(r.published_time)) + '</td><td class="redup">' + esc(r.penerbit || nama(r.source)) + "</td>" +
-      '<td class="judul"><a href="' + esc(r.link) + '" target="_blank" rel="noopener noreferrer">' + esc(dekode(r.news_title || r.link)) + "</a>" + ringkas + "</td>" +
+      '<td class="judul"><a href="' + esc(aman(r.link)) + '" target="_blank" rel="noopener noreferrer">' + esc(dekode(r.news_title || r.link)) + "</a>" + ringkas + "</td>" +
       "<td>" + tag(r.jenis) + "</td><td>" + st + '</td><td class="redup">' + esc(fmtWib(r.masuk_wib)) + "</td></tr>";
   }
   function muatDaftar(tambah) {
@@ -647,7 +650,7 @@
         '<section class="kol-slide"><h6>Isi slide</h6><div class="sampul-j"><span class="no">1</span><b>' + esc(r.judul_panel) + "</b></div>" + (slides ? '<ol class="slide-daftar">' + slides + "</ol>" : "") + kutipan + "</section>" +
         '<section class="kol-cap"><h6>Caption</h6><div class="cap">' + (paragraf || '<p class="redup">Belum ada caption.</p>') + "</div>" +
         (r.komen ? '<div class="kotak"><h6>Komentar pertama</h6><p>' + esc(r.komen) + "</p></div>" : "") + "</section>" +
-        '<footer class="kaki-rinci"><span>Sumber asli: <a class="tautan" href="' + esc(r.link) + '" target="_blank" rel="noopener noreferrer">' + esc(dekode(r.news_title) || r.penerbit || "rangkuman sepekan") + "</a></span>" +
+        '<footer class="kaki-rinci"><span>Sumber asli: <a class="tautan" href="' + esc(aman(r.link)) + '" target="_blank" rel="noopener noreferrer">' + esc(dekode(r.news_title) || r.penerbit || "rangkuman sepekan") + "</a></span>" +
         (r.catatan_model ? '<span>Catatan model: ' + esc(r.catatan_model) + "</span>" : "") + "</footer></div>";
       return '<tr class="buka"><td class="mono">' + esc(r.kode) + "</td><td>" + status(STATUS_KONTEN, r.status) + "</td>" +
         '<td class="lebar j">' + esc(r.judul_panel) + "</td><td>" + tag(FORMAT[r.format] || r.format) + tag(r.audiens) + '</td><td class="redup">' + esc(r.penerbit || nama(r.source)) + '</td><td class="redup">' + esc(fmtWib(r.dibuat_wib)) + "</td></tr>" +
@@ -664,7 +667,7 @@
     tb.innerHTML = rows.map(function (r) {
       return "<tr><td>" + esc(fmtTgl(r.tanggal)) + (r.dipilih ? ' <span class="s ok">dipilih</span>' : "") + "</td>" +
         '<td class="num">' + esc(r.peringkat) + '</td><td class="num">' + esc(r.skor) + "</td>" +
-        '<td class="lebar"><a class="tautan" style="color:inherit" href="' + esc(r.link) + '" target="_blank" rel="noopener noreferrer">' + esc(dekode(r.news_title)) + "</a></td>" +
+        '<td class="lebar"><a class="tautan" style="color:inherit" href="' + esc(aman(r.link)) + '" target="_blank" rel="noopener noreferrer">' + esc(dekode(r.news_title)) + "</a></td>" +
         "<td>" + tag(r.jenis) + tag(r.audiens) + '</td><td class="redup">' + esc(r.penerbit || nama(r.source)) + '</td><td class="lebar redup">' + esc(r.alasan) + "</td></tr>";
     }).join("");
   }
@@ -673,7 +676,7 @@
     if (!rows.length) { tb.innerHTML = '<tr><td colspan="4" class="state">Belum ada prospek tertangkap.</td></tr>'; return; }
     tb.innerHTML = rows.map(function (r) {
       return "<tr><td>" + esc(fmtTgl(r.published_time)) + '</td><td class="redup">' + esc(r.penerbit) + "</td>" +
-        '<td class="lebar"><a class="tautan" style="color:inherit" href="' + esc(r.link) + '" target="_blank" rel="noopener noreferrer">' + esc(dekode(r.news_title)) + "</a></td>" +
+        '<td class="lebar"><a class="tautan" style="color:inherit" href="' + esc(aman(r.link)) + '" target="_blank" rel="noopener noreferrer">' + esc(dekode(r.news_title)) + "</a></td>" +
         '<td class="lebar redup">' + esc(r.alasan) + "</td></tr>";
     }).join("");
   }
@@ -688,7 +691,7 @@
     g.innerHTML = rows.map(function (r) {
       var u = urlGambar(r.gambar_path);
       var gambar = u
-        ? '<a href="' + esc(u) + '" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="' + esc(u) + '" alt="Sampul ' + esc(r.kode) + '"></a>'
+        ? '<button type="button" class="sampul-btn buka" data-kode="' + esc(r.kode) + '" aria-label="Lihat slide ' + esc(r.kode) + '"><img loading="lazy" src="' + esc(u) + '" alt=""></button>'
         : '<div class="kosong">belum dirender<br><span class="mono">' + esc(r.kode) + "</span></div>";
       var n = Number(r.jumlah_slide || 0);
       var tunggal = r.bentuk === "tunggal" || n === 1;
@@ -719,7 +722,7 @@
       r.pilar ? "pilar " + esc(r.pilar) : "",
       r.cta ? "CTA: " + esc(r.cta) : "",
       r.tayang_wib ? "tayang " + esc(fmtWib(r.tayang_wib)) : "",
-      r.link ? '<a class="tautan" href="' + esc(r.link) + '" target="_blank" rel="noopener noreferrer">sumber asli</a>' : ""
+      r.link ? '<a class="tautan" href="' + esc(aman(r.link)) + '" target="_blank" rel="noopener noreferrer">sumber asli</a>' : ""
     ].filter(Boolean).join("<span>·</span>");
     var kotak = el("lihat");
     document.querySelectorAll("#galeri .item, #arsip .item").forEach(function (it) { it.classList.toggle("aktif", it.getAttribute("data-kode") === kode); });
@@ -755,7 +758,7 @@
   function tautanKanal(ch) {
     var t = (ch || []).filter(function (c) { return c && c.url; });
     if (!t.length) return "";
-    return '<ul class="kanal">' + t.map(function (c) { return '<li><a href="' + esc(c.url) + '" target="_blank" rel="noopener noreferrer">' + esc(NAMA_KANAL[c.kanal] || c.kanal) + '<span aria-hidden="true">↗</span></a></li>'; }).join("") + "</ul>";
+    return '<ul class="kanal">' + t.map(function (c) { return '<li><a href="' + esc(aman(c.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(NAMA_KANAL[c.kanal] || c.kanal) + '<span aria-hidden="true">↗</span></a></li>'; }).join("") + "</ul>";
   }
   function gambarArsip(rows) {
     var g = el("arsip");
@@ -802,7 +805,7 @@
     var tb = document.querySelector("#terbit tbody");
     if (!rows.length) { tb.innerHTML = '<tr><td colspan="7" class="state">Belum ada kiriman ke platform. Baris muncul begitu sebuah kode di-ACC lewat WhatsApp dan dijadwalkan ke Postiz, satu baris per platform.</td></tr>'; return; }
     tb.innerHTML = rows.map(function (r) {
-      var tautan = r.url ? '<a class="tautan" href="' + esc(r.url) + '" target="_blank" rel="noopener noreferrer">' + esc(r.url.replace(/^https?:\/\//, "").slice(0, 48)) + "</a>" : "–";
+      var tautan = r.url ? '<a class="tautan" href="' + esc(aman(r.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(r.url.replace(/^https?:\/\//, "").slice(0, 48)) + "</a>" : "–";
       return '<tr><td class="mono">' + esc(r.kode) + "</td><td>" + esc(r.platform) + "</td><td>" + status(STATUS_TERBIT, r.status) + "</td>" +
         '<td class="lebar">' + esc(r.judul_panel) + "</td><td>" + tautan + '</td><td class="redup">' + esc(fmtWib(r.terbit_wib)) + '</td><td class="lebar redup">' + esc(r.pesan || "") + "</td></tr>";
     }).join("");
