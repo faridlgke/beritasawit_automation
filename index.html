@@ -827,7 +827,7 @@
         document.querySelector("#konfirmasi tbody").innerHTML = '<tr><td colspan="6" class="state err">' + p + "</td></tr>";
       }),
       ambil("rk_pilihan_harian?select=*" + B + "&order=tanggal.desc,peringkat.asc&limit=30").then(gambarPilihan).catch(function (e) {
-        document.querySelector("#pilihan tbody").innerHTML = '<tr><td colspan="7" class="state err">' + esc(pesanGalat(e, "rk_pilihan_harian", "sql/002")) + "</td></tr>";
+        var tbp = document.querySelector("#pilihan tbody"); if (tbp) tbp.innerHTML = '<tr><td colspan="7" class="state err">' + esc(pesanGalat(e, "rk_pilihan_harian", "sql/002")) + "</td></tr>";
       }),
       ambil("rk_terbit_terbaru?select=*" + B + "&limit=60").then(gambarTerbit).catch(function (e) {
         document.querySelector("#terbit tbody").innerHTML = '<tr><td colspan="7" class="state err">' + esc(pesanGalat(e, "rk_terbit_terbaru", "sql/003")) + "</td></tr>";
