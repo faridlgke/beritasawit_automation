@@ -288,7 +288,7 @@
       </table></div>
     </div>
     <div class="blok">
-      <h3>Pilihan triase <span>skor model 0 sampai 10, yang ditandai dipilih masuk jatah copywriting hari itu</span></h3>
+      <h3>Seleksi berita harian <span>tiap pagi mesin menilai berita terbaru 0 sampai 10, yang bertanda dipilih ditulis jadi konten hari itu</span></h3>
       <div class="scroll"><table id="pilihan">
         <thead><tr><th>Tanggal</th><th class="num">#</th><th class="num">Skor</th><th>Judul</th><th>Jenis</th><th>Penerbit</th><th>Alasan model</th></tr></thead>
         <tbody><tr><td colspan="7" class="state">memuat…</td></tr></tbody>
@@ -346,7 +346,7 @@
   </dialog>
 
   <footer>
-    Dibaca langsung dari basis data BeritaSawit, baca saja, isi penuh bahan tidak dibuka. Semua konten di sini dibuat mesin dan membawa label (AUTOMATED). Jam dalam WIB. Scraping 05.00, 10.00, 15.00, 20.00, triase dan copywriting 06.40.
+    Dibaca langsung dari basis data BeritaSawit, baca saja, isi penuh bahan tidak dibuka. Semua konten di sini dibuat mesin dan membawa label (AUTOMATED). Jam dalam WIB. Scraping 05.00, 10.00, 15.00, 20.00, seleksi berita dan copywriting 06.40.
   </footer>
 </div>
 
@@ -584,7 +584,7 @@
       var denyut = res[1].map(function (r) { return { "Sumber": nama(r.source), "Kode sumber": r.source, "Total": Number(r.total), "Berita terbaru": r.terbit_terakhir, "Terakhir scraping (WIB)": r.masuk_terakhir_wib }; });
       var pantau = res[2].map(function (r) { return { "Sumber": nama(r.source), "Kode sumber": r.source, "Terbit": r.published_time, "Bahan": Number(r.artikel), "Terakhir masuk (WIB)": r.terakhir_masuk_wib }; });
       var konten = res[3].map(function (r) { return { "Kode": r.kode, "Status": r.status, "Format": r.format, "Audiens": r.audiens, "Pilar": r.pilar, "Judul sampul": r.judul_panel, "Slide": (r.slides || []).map(function (s, i) { return (i + 1) + ". " + s.judul + ": " + s.isi; }).join("\n"), "Caption": r.caption, "CTA": r.cta, "Penerbit": r.penerbit, "Judul asli": dekode(r.news_title), "Tautan": r.link, "Catatan model": r.catatan_model, "Dibuat (WIB)": r.dibuat_wib, "Dikirim (WIB)": r.dikirim_wib, "Diputus (WIB)": r.diputus_wib, "Alasan status": r.alasan_status }; });
-      var prospek = res[4].map(function (r) { return { "Tanggal triase": r.tanggal, "Terbit": r.published_time, "Penerbit": r.penerbit, "Judul": dekode(r.news_title), "Tautan": r.link, "Catatan model": r.alasan, "Skor": Number(r.skor) }; });
+      var prospek = res[4].map(function (r) { return { "Tanggal seleksi": r.tanggal, "Terbit": r.published_time, "Penerbit": r.penerbit, "Judul": dekode(r.news_title), "Tautan": r.link, "Catatan model": r.alasan, "Skor": Number(r.skor) }; });
       var terbit = res[5].map(function (r) { return { "Kode": r.kode, "Platform": r.platform, "Status": r.status, "Tautan": r.url, "Terbit (WIB)": r.terbit_wib, "Pesan": r.pesan }; });
       var wb = XLSX.utils.book_new();
       var ws = XLSX.utils.json_to_sheet(artikel);
@@ -610,7 +610,7 @@
     var n = DRAF.total == null ? DRAF.belum : DRAF.total;
     el("c3").textContent = id_(n);
     el("k3").innerHTML = '<span class="dot ' + (DRAF.belum ? "warn" : "ok") + '"></span>' + (DRAF.belum ? DRAF.belum + " belum dikirim" : "semua sudah dikirim");
-    el("j-draf").innerHTML = "<b>" + id_(n) + "</b> draf ditulis, <b>" + DRAF.belum + "</b> belum dikirim ke WhatsApp, <b>" + DRAF.dipilih + "</b> judul dipilih triase";
+    el("j-draf").innerHTML = "<b>" + id_(n) + "</b> draf ditulis, <b>" + DRAF.belum + "</b> belum dikirim ke WhatsApp, <b>" + DRAF.dipilih + "</b> berita lolos seleksi harian";
   }
   function gambarDraf(rows) {
     DRAF.total = rows.length; tulisDraf();
@@ -639,7 +639,7 @@
   }
   function gambarPilihan(rows) {
     var tb = document.querySelector("#pilihan tbody");
-    if (!rows.length) { tb.innerHTML = '<tr><td colspan="7" class="state">Belum ada triase.</td></tr>'; return; }
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="7" class="state">Belum ada seleksi berita.</td></tr>'; return; }
     tb.innerHTML = rows.map(function (r) {
       return "<tr><td>" + esc(fmtTgl(r.tanggal)) + (r.dipilih ? ' <span class="s ok">dipilih</span>' : "") + "</td>" +
         '<td class="num">' + esc(r.peringkat) + '</td><td class="num">' + esc(r.skor) + "</td>" +
