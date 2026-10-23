@@ -304,11 +304,11 @@
 
   <section class="lembar" id="p-konfirmasi" role="tabpanel" hidden>
     <h2 id="j-konfirmasi">Konfirmasi lewat WhatsApp</h2>
-    <p class="lead">Tiap kode SW dikirim ke WhatsApp pemilik berikut semua slide, caption, dan catatan model, lalu menunggu balasan ACC, UJI, atau HENTIKAN lewat agen Hermes. ACC menjadwalkan ke Postiz. Jam kirim, jam putus, dan alasan tercatat di sini.</p>
+    <p class="lead">Kiriman yang sudah sampai di WhatsApp pemilik dan masih menunggu keputusan. Balas ACC untuk menjadwalkan ke Postiz pada slot 12.00 atau 19.00 WIB, ACC kode HH:MM untuk jam tertentu, atau HENTIKAN kode beserta alasannya. Begitu dibalas, kiriman hilang dari daftar ini.</p>
     <div class="blok">
       <div class="scroll"><table id="konfirmasi">
-        <thead><tr><th>Kode</th><th>Status</th><th>Judul sampul</th><th>Dikirim</th><th>Diputus</th><th>Alasan</th></tr></thead>
-        <tbody><tr><td colspan="6" class="state">memuat…</td></tr></tbody>
+        <thead><tr><th>Kode</th><th>Judul sampul</th><th>Dikirim ke WA</th><th>Balas dengan</th></tr></thead>
+        <tbody><tr><td colspan="4" class="state">memuat…</td></tr></tbody>
       </table></div>
     </div>
   </section>
@@ -447,16 +447,16 @@
     el("c4").textContent = desain;
     el("k4").innerHTML = '<span class="dot ' + (desain ? "ok" : "") + '"></span>sampul terender';
     el("c5").textContent = tunggu;
-    el("k5").innerHTML = (tunggu + setuju + tolak) ? '<span class="dot ' + (tunggu ? "warn" : "ok") + '"></span>' + setuju + " setuju, " + tolak + " tolak" : '<span class="dot"></span>gerbang belum hidup';
+    el("k5").innerHTML = '<span class="dot ' + (tunggu ? "warn" : "") + '"></span>' + (tunggu ? "menunggu balasan WA" : "tidak ada yang menunggu");
     TERBIT.baru = terbit; TERBIT.gagal = gagal; tulisTerbit();
 
     el("j-denyut").innerHTML = "<b>" + sehat + " dari " + total + "</b> sumber menyumbang bahan dalam 30 jam terakhir";
     el("j-artikel").innerHTML = "<b>" + id_(artikel) + "</b> bahan di basis data, <b>" + id_(baru) + "</b> masuk dalam 24 jam";
     el("j-draf").innerHTML = "<b>" + draf + "</b> draf menunggu kirim, <b>" + dipilih + "</b> judul dipilih triase";
     el("j-desain").innerHTML = "<b>" + desain + "</b> sampul sudah dirender";
-    el("j-konfirmasi").innerHTML = (tunggu + setuju + tolak)
-      ? "<b>" + tunggu + "</b> menunggu balasan, <b>" + setuju + "</b> disetujui, <b>" + tolak + "</b> ditolak"
-      : "Gerbang WhatsApp <b>belum hidup</b>, draf berhenti di tahap sebelumnya";
+    el("j-konfirmasi").innerHTML = tunggu
+      ? "<b>" + tunggu + "</b> kiriman menunggu balasan di WhatsApp"
+      : "<b>Tidak ada</b> kiriman yang menunggu balasan";
     el("j-terbit").innerHTML = terbit ? "<b>" + terbit + "</b> kiriman terbit, <b>" + gagal + "</b> gagal" : "<b>Belum ada</b> kiriman ke platform";
 
     var hidup = [sehat > 0, artikel > 0, draf + dipilih > 0, desain > 0, tunggu + setuju + tolak > 0, terbit > 0];
@@ -759,13 +759,13 @@
 
   function gambarKonfirmasi(rows) {
     var tb = document.querySelector("#konfirmasi tbody");
-    if (!rows.length) { tb.innerHTML = '<tr><td colspan="6" class="state">Belum ada konten.</td></tr>'; return; }
-    var urut = { dikirim: 0, draf: 1, setuju: 2, tolak: 3, terbit: 4 };
-    rows.sort(function (a, b) { return (urut[a.status] || 9) - (urut[b.status] || 9); });
+    // hanya permintaan yang masih aktif: sudah di WhatsApp, belum dibalas
+    rows = rows.filter(function (r) { return r.status === "dikirim"; });
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="4" class="state">Tidak ada kiriman yang menunggu balasan. Kiriman yang sudah disetujui ada di tahap Terbit.</td></tr>'; return; }
+    rows.sort(function (a, b) { return String(a.dikirim_wib).localeCompare(String(b.dikirim_wib)); });
     tb.innerHTML = rows.map(function (r) {
-      return '<tr><td class="mono">' + esc(r.kode) + "</td><td>" + status(STATUS_KONTEN, r.status) + "</td>" +
-        '<td class="lebar">' + esc(r.judul_panel) + '</td><td class="redup">' + esc(fmtWib(r.dikirim_wib)) + '</td><td class="redup">' + esc(fmtWib(r.diputus_wib)) + "</td>" +
-        '<td class="lebar redup">' + esc(r.alasan_status || "") + "</td></tr>";
+      return '<tr><td class="mono">' + esc(r.kode) + '</td><td class="lebar">' + esc(r.judul_panel) + '</td><td class="redup">' + esc(fmtPukul(r.dikirim_wib)) + "</td>" +
+        '<td class="mono redup">ACC ' + esc(r.kode) + " · HENTIKAN " + esc(r.kode) + " &lt;alasan&gt;</td></tr>";
     }).join("");
   }
 
