@@ -294,13 +294,6 @@
         <tbody><tr><td colspan="6" class="state">memuat…</td></tr></tbody>
       </table></div>
     </div>
-    <div class="blok">
-      <h3>Seleksi berita harian <span>tiap pagi mesin menilai berita terbaru 0 sampai 10, yang bertanda dipilih ditulis jadi konten hari itu</span></h3>
-      <div class="scroll"><table id="pilihan">
-        <thead><tr><th>Tanggal</th><th class="num">#</th><th class="num">Skor</th><th>Judul</th><th>Jenis</th><th>Penerbit</th><th>Alasan model</th></tr></thead>
-        <tbody><tr><td colspan="7" class="state">memuat…</td></tr></tbody>
-      </table></div>
-    </div>
   </section>
 
   <section class="lembar" id="p-desain" role="tabpanel" hidden>
@@ -666,6 +659,7 @@
   }
   function gambarPilihan(rows) {
     var tb = document.querySelector("#pilihan tbody");
+    if (!tb) return;   // tabel seleksi dibuang dari tab Draf 23 Oktober 2026, datanya tetap ada di Excel
     if (!rows.length) { tb.innerHTML = '<tr><td colspan="7" class="state">Belum ada seleksi berita.</td></tr>'; return; }
     tb.innerHTML = rows.map(function (r) {
       return "<tr><td>" + esc(fmtTgl(r.tanggal)) + (r.dipilih ? ' <span class="s ok">dipilih</span>' : "") + "</td>" +
