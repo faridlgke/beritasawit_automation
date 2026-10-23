@@ -304,10 +304,10 @@
 
   <section class="lembar" id="p-konfirmasi" role="tabpanel" hidden>
     <h2 id="j-konfirmasi">Konfirmasi lewat WhatsApp</h2>
-    <p class="lead">Kiriman yang sudah sampai di WhatsApp pemilik dan masih menunggu keputusan. Balas ACC untuk menjadwalkan ke Postiz pada slot 12.00 atau 19.00 WIB, ACC kode HH:MM untuk jam tertentu, atau HENTIKAN kode beserta alasannya. Begitu dibalas, kiriman hilang dari daftar ini.</p>
+    <p class="lead">Kiriman yang sudah sampai di WhatsApp pemilik dan belum dijawab. Begitu dijawab, kiriman hilang dari daftar ini.</p>
     <div class="blok">
       <div class="scroll"><table id="konfirmasi">
-        <thead><tr><th>Kode</th><th>Judul sampul</th><th>Dikirim ke WA</th><th>Balas dengan</th></tr></thead>
+        <thead><tr><th>Kode</th><th>Status</th><th>Judul sampul</th><th>Dikirim ke WA</th></tr></thead>
         <tbody><tr><td colspan="4" class="state">memuat…</td></tr></tbody>
       </table></div>
     </div>
@@ -764,8 +764,7 @@
     if (!rows.length) { tb.innerHTML = '<tr><td colspan="4" class="state">Tidak ada kiriman yang menunggu balasan. Kiriman yang sudah disetujui ada di tahap Terbit.</td></tr>'; return; }
     rows.sort(function (a, b) { return String(a.dikirim_wib).localeCompare(String(b.dikirim_wib)); });
     tb.innerHTML = rows.map(function (r) {
-      return '<tr><td class="mono">' + esc(r.kode) + '</td><td class="lebar">' + esc(r.judul_panel) + '</td><td class="redup">' + esc(fmtPukul(r.dikirim_wib)) + "</td>" +
-        '<td class="mono redup">ACC ' + esc(r.kode) + " · HENTIKAN " + esc(r.kode) + " &lt;alasan&gt;</td></tr>";
+      return '<tr><td class="mono">' + esc(r.kode) + '</td><td><span class="s warn">menunggu balasan</span></td><td class="lebar">' + esc(r.judul_panel) + '</td><td class="redup">' + esc(fmtPukul(r.dikirim_wib)) + "</td></tr>";
     }).join("");
   }
 
