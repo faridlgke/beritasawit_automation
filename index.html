@@ -145,6 +145,13 @@
   .rinci strong { font-weight: 600; color: var(--ink); }
   .rinci .kutip p { font-style: italic; }
   .rinci .kutip span { display: block; margin-top: 6px; color: var(--ink-2); font-size: 0.84rem; }
+  .rinci .spek { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 28px; padding-bottom: 18px; border-bottom: 1px solid var(--rule-2); }
+  .rinci .spek h6 { margin-bottom: 6px; }
+  .rinci .spek p { margin: 0 0 2px; font-weight: 600; }
+  .rinci .spek > div > span { display: block; color: var(--ink-2); font-size: 0.8rem; margin-top: 4px; }
+  .rinci .spek .kanal { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .rinci .spek .kanal span { display: inline-block; font-size: 0.78rem; font-weight: 600; color: var(--accent); border: 1px solid var(--rule-2); border-radius: 999px; padding: 3px 10px; background: var(--bg); }
+  @media (max-width: 760px) { .rinci .spek { grid-template-columns: minmax(0, 1fr); } }
   .rinci .kaki-rinci { grid-column: 1 / -1; display: grid; gap: 4px; padding-top: 14px; border-top: 1px solid var(--rule-2); color: var(--ink-2); font-size: 0.82rem; }
   @media (max-width: 760px) { .rinci { grid-template-columns: minmax(0, 1fr); padding: 18px 16px; position: sticky; left: 0; width: calc(100vw - 32px); box-sizing: border-box; } }
   tr.isi .cat { display: block; margin-top: 10px; color: var(--ink-2); font-size: 0.82rem; }
@@ -612,6 +619,26 @@
     el("k3").innerHTML = '<span class="dot ' + (DRAF.belum ? "warn" : "ok") + '"></span>' + (DRAF.belum ? DRAF.belum + " belum dikirim" : "semua sudah dikirim");
     el("j-draf").innerHTML = "<b>" + id_(n) + "</b> draf ditulis, <b>" + DRAF.belum + "</b> belum dikirim ke WhatsApp, <b>" + DRAF.dipilih + "</b> berita lolos seleksi harian";
   }
+  // Kanal gerbang brand ini (profil.json gerbang.kanal). Bentuk per platform
+  // mengikuti cara terbit_postiz mengirimnya: satu post berisi semua slide.
+  var KANAL_BRAND = ["instagram", "threads", "linkedin"];
+  var AUDIENS = { pelaku: "Pelaku sawit", pengambil_keputusan: "Pengambil keputusan", institusi: "Institusi", peserta: "Peserta" };
+  function spekKonten(r) {
+    var n = Number(r.jumlah_slide || (r.slides || []).length + 1);
+    var tunggal = r.bentuk === "tunggal" || n <= 1;
+    var bentuk = r.mode === "roundup" ? "Carousel rangkuman sepekan, " + n + " slide" : tunggal ? "Post tunggal, 1 gambar" : "Carousel, " + n + " slide";
+    var per = {
+      instagram: tunggal ? "Instagram feed post" : "Instagram feed carousel",
+      threads: tunggal ? "Threads post gambar" : "Threads post " + n + " gambar",
+      linkedin: tunggal ? "LinkedIn post gambar" : "LinkedIn post " + n + " gambar",
+      facebook: tunggal ? "Facebook post" : "Facebook album"
+    };
+    return '<div class="spek">' +
+      '<div><h6>Bentuk</h6><p>' + esc(bentuk) + '</p><span>1080 × 1350 px, rasio 4:5</span></div>' +
+      '<div><h6>Platform</h6><ul class="kanal">' + KANAL_BRAND.map(function (k) { return "<li><span>" + esc(per[k]) + "</span></li>"; }).join("") + '</ul><span>Belum dibuat versi Story atau Reels</span></div>' +
+      '<div><h6>Pembaca sasaran</h6><p>' + esc(AUDIENS[r.audiens] || r.audiens || "–") + '</p><span>Jenis: ' + esc(FORMAT[r.format] || r.format || "–") + '</span></div>' +
+      "</div>";
+  }
   function gambarDraf(rows) {
     DRAF.total = rows.length; tulisDraf();
     var tb = document.querySelector("#draf tbody");
@@ -623,7 +650,7 @@
       var paragraf = String(r.caption || "").split(/\n\s*\n/).map(function (p) { return p.trim(); }).filter(Boolean)
         .map(function (p) { return "<p>" + tebal(p).replace(/\n/g, "<br>") + "</p>"; }).join("");
       var kutipan = d.kutipan ? '<div class="kotak kutip"><h6>Slide kutipan</h6><p>“' + esc(d.kutipan.teks) + '”</p><span>' + esc(d.kutipan.nama) + (d.kutipan.jabatan ? ", " + esc(d.kutipan.jabatan) : "") + "</span></div>" : "";
-      var rinci = '<div class="rinci">' +
+      var rinci = '<div class="rinci">' + spekKonten(r) +
         '<section class="kol-slide"><h6>Isi slide</h6><div class="sampul-j"><span class="no">1</span><b>' + esc(r.judul_panel) + "</b></div>" + (slides ? '<ol class="slide-daftar">' + slides + "</ol>" : "") + kutipan + "</section>" +
         '<section class="kol-cap"><h6>Caption</h6><div class="cap">' + (paragraf || '<p class="redup">Belum ada caption.</p>') + "</div>" +
         (r.komen ? '<div class="kotak"><h6>Komentar pertama</h6><p>' + esc(r.komen) + "</p></div>" : "") + "</section>" +
