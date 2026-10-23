@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Alur Konten BeritaSawit</title>
+<title>BeritaSawit Automation Testing</title>
 <meta name="description" content="Pantauan alur konten otomatis BeritaSawit.id dari denyut scraping sampai terbit, dibaca langsung dari basis datanya.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
@@ -36,6 +36,11 @@
   a { color: var(--accent); }
   code { font-family: var(--mono); font-size: 0.86em; }
 
+  .tajuk { margin: 8px 0 36px; padding-bottom: 28px; border-bottom: 2px solid var(--accent); }
+  .tajuk .nama { font-family: var(--judul); font-weight: 900; font-size: clamp(1.9rem, 8.4vw, 5.4rem); line-height: 0.95; letter-spacing: -0.02em; color: var(--accent); margin: 0; white-space: nowrap; }
+  .tajuk .sub { font-family: var(--judul); font-weight: 700; font-size: clamp(1.05rem, 2.6vw, 1.5rem); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); margin: 10px 0 18px; }
+  .tajuk .sangkal { max-width: 68ch; margin: 0; padding: 12px 16px; border-left: 4px solid var(--warn); background: var(--hover); color: var(--ink); font-size: 0.95rem; line-height: 1.55; }
+  .tajuk .sangkal b { color: var(--warn); }
   .kepala { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px 32px; flex-wrap: wrap; }
   .merek { font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
   .merek i { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); display: inline-block; }
@@ -159,9 +164,13 @@
 </head>
 <body>
 <div class="wrap">
+  <section class="tajuk" aria-label="Tentang halaman ini">
+    <p class="nama">BERITASAWIT.ID</p>
+    <p class="sub">Media Automation Testing</p>
+    <p class="sangkal"><b>Disclaimer.</b> Jangan gunakan halaman ini sebagai sumber informasi. Seluruh isinya dihasilkan mesin secara otomatis, semata-mata untuk menunjukkan bahwa automasi media seperti ini sangat bisa dilakukan di era saat ini.</p>
+  </section>
   <header class="kepala">
     <div>
-      <div class="merek"><i></i>BeritaSawit.id · konten otomatis</div>
       <h1>Alur konten, dari denyut sampai terbit</h1>
     </div>
     <div class="meta"><span id="dimuat">memuat…</span><button id="muat-ulang" type="button" class="ghost">Muat ulang</button></div>
