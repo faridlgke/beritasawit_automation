@@ -442,8 +442,7 @@
     el("k1").innerHTML = '<span class="dot ' + (sehat >= total * 0.6 ? "ok" : sehat >= total * 0.3 ? "warn" : "bad") + '"></span>sumber menyumbang 30 jam';
     el("c2").textContent = id_(artikel);
     el("k2").textContent = "+" + id_(baru) + " dalam 24 jam";
-    el("c3").textContent = draf;
-    el("k3").innerHTML = '<span class="dot ' + (draf ? "warn" : "") + '"></span>menunggu kirim';
+    DRAF.belum = draf; DRAF.dipilih = dipilih; tulisDraf();
     el("c4").textContent = desain;
     el("k4").innerHTML = '<span class="dot ' + (desain ? "ok" : "") + '"></span>sampul terender';
     el("c5").textContent = tunggu;
@@ -452,7 +451,7 @@
 
     el("j-denyut").innerHTML = "<b>" + sehat + " dari " + total + "</b> sumber menyumbang bahan dalam 30 jam terakhir";
     el("j-artikel").innerHTML = "<b>" + id_(artikel) + "</b> bahan di basis data, <b>" + id_(baru) + "</b> masuk dalam 24 jam";
-    el("j-draf").innerHTML = "<b>" + draf + "</b> draf menunggu kirim, <b>" + dipilih + "</b> judul dipilih triase";
+
     el("j-desain").innerHTML = "<b>" + desain + "</b> sampul sudah dirender";
     el("j-konfirmasi").innerHTML = tunggu
       ? "<b>" + tunggu + "</b> kiriman menunggu balasan di WhatsApp"
@@ -604,7 +603,17 @@
   el("unduh").addEventListener("click", unduhExcel);
 
   function tebal(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"); }
+  // Angka tahap Draf = jumlah draf yang tampil di tabelnya, bukan cuma yang belum
+  // dikirim. Versi sebelumnya menulis 0 sementara tabelnya memuat 4 (23 Oktober 2026).
+  var DRAF = { total: null, belum: 0, dipilih: 0 };
+  function tulisDraf() {
+    var n = DRAF.total == null ? DRAF.belum : DRAF.total;
+    el("c3").textContent = id_(n);
+    el("k3").innerHTML = '<span class="dot ' + (DRAF.belum ? "warn" : "ok") + '"></span>' + (DRAF.belum ? DRAF.belum + " belum dikirim" : "semua sudah dikirim");
+    el("j-draf").innerHTML = "<b>" + id_(n) + "</b> draf ditulis, <b>" + DRAF.belum + "</b> belum dikirim ke WhatsApp, <b>" + DRAF.dipilih + "</b> judul dipilih triase";
+  }
   function gambarDraf(rows) {
+    DRAF.total = rows.length; tulisDraf();
     var tb = document.querySelector("#draf tbody");
     if (!rows.length) { tb.innerHTML = '<tr><td colspan="6" class="state">Belum ada draf.</td></tr>'; return; }
     tb.innerHTML = rows.map(function (r) {
