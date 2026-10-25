@@ -171,6 +171,9 @@
   .aksi { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
   .aksi .n { color: var(--ink-2); font-size: 0.84rem; }
   .lagi { display: flex; justify-content: center; padding-top: 18px; }
+  .minggu { margin: 0 0 34px; }
+  .minggu h4 { font-size: 0.95rem; font-weight: 700; margin: 0 0 14px; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,.12); display: flex; justify-content: space-between; gap: 12px; }
+  .minggu h4 span { font-weight: 500; opacity: .7; }
   .galeri { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 24px 18px; }
   @media (max-width: 480px) { .galeri { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; } .item .kanal { gap: 4px; } .item .kanal a { padding: 2px 7px; font-size: 0.7rem; } }
   .item img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 10px; border: 1px solid var(--rule); background: var(--hover); }
@@ -323,12 +326,8 @@
       </table></div>
     </div>
     <div class="blok">
-      <h3>Tayang dari mesin baru <span id="tayang-ket">kiriman kode SW yang sudah di-ACC, terbaru dulu</span></h3>
-      <div class="galeri" id="tayang"><div class="state">memuat…</div></div>
-    </div>
-    <div class="blok">
-      <h3>Arsip yang sudah tayang <span id="arsip-ket">kiriman mesin lama (carousel-engine), Juli sampai Agustus 2026, lewat gerbang WhatsApp dan Postiz</span></h3>
-      <div class="galeri" id="arsip"><div class="state">memuat…</div></div>
+      <h3>Sudah tayang, per minggu terbit <span id="arsip-ket">terbaru dulu, minggu Senin sampai Minggu</span></h3>
+      <div id="arsip"><div class="state">memuat…</div></div>
     </div>
     <div class="blok">
       <h3>Riwayat terbit Postiz mesin lama <span id="ledger-ket">semua yang pernah dijadwalkan ke Instagram sejak Juli 2026, termasuk sebelum gerbang tinjauan ada</span></h3>
@@ -773,48 +772,72 @@
     if (!t.length) return "";
     return '<ul class="kanal">' + t.map(function (c) { return '<li><a href="' + esc(aman(c.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(NAMA_KANAL[c.kanal] || c.kanal) + '<span aria-hidden="true">↗</span></a></li>'; }).join("") + "</ul>";
   }
+  // Pemilik 25 Oktober 2026: yang sudah tayang dijejerkan per MINGGU terbit,
+  // satu galeri. Kiriman mesin baru (rk_terbit) dan arsip mesin lama (rk_arsip)
+  // jadi butir {waktu, html} lalu dikelompokkan Senin sampai Minggu.
+  var SUDAH = { baru: null, arsip: null };
+  var STATUS_KANAL = { antre: "menunggu", diproses: "diproses", gagal: "gagal" };
+  function kartu(r, judul, waktu, kanalTayang, catatan, kode) {
+    var u = urlGambar(r.gambar_path), n = Number(r.jumlah_slide || 0), tunggal = n <= 1;
+    return '<article class="item" data-kode="' + esc(r.kode) + '"><button type="button" class="sampul-btn buka" data-kode="' + esc(r.kode) + '" aria-label="Lihat ' + (tunggal ? "kiriman" : n + " slide") + ' ' + esc(judul || r.kode) + '"><img loading="lazy" src="' + esc(u) + '" alt="">' +
+      (tunggal ? "" : '<span class="jml">' + n + " slide</span>") + "</button>" +
+      '<div class="m">' + (kode ? '<span class="kode">' + esc(r.kode) + "</span> " : "") + '<span class="redup">' + esc(fmtPukul(waktu)) + "</span></div>" + tautanKanal(kanalTayang) +
+      (catatan ? '<div class="m redup">' + esc(catatan) + "</div>" : "") + "</article>";
+  }
+  function senin(waktu) {
+    var m = String(waktu || "").match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return null;
+    var d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+    return d;
+  }
+  function labelMinggu(d) {
+    var e = new Date(d.getTime() + 6 * 864e5);
+    var a = d.getUTCDate() + (d.getUTCMonth() !== e.getUTCMonth() ? " " + BULAN[d.getUTCMonth()] : "") + (d.getUTCFullYear() !== e.getUTCFullYear() ? " " + d.getUTCFullYear() : "");
+    return a + "\u2013" + e.getUTCDate() + " " + BULAN[e.getUTCMonth()] + " " + e.getUTCFullYear();
+  }
+  function susunMingguan() {
+    if (SUDAH.baru === null || SUDAH.arsip === null) return;
+    var g = el("arsip"), butir = SUDAH.baru.concat(SUDAH.arsip).filter(function (b) { return b.waktu; });
+    if (!butir.length) { g.innerHTML = '<div class="state">Belum ada kiriman yang tayang.</div>'; return; }
+    butir.sort(function (a, b) { return String(b.waktu).localeCompare(String(a.waktu)); });
+    var urut = [], per = {};
+    butir.forEach(function (b) {
+      var d = senin(b.waktu), k = d ? d.toISOString().slice(0, 10) : "-";
+      if (!per[k]) { per[k] = { d: d, isi: [] }; urut.push(k); }
+      per[k].isi.push(b.html);
+    });
+    g.innerHTML = urut.map(function (k) {
+      var m = per[k];
+      return '<section class="minggu"><h4>' + (m.d ? "Minggu " + esc(labelMinggu(m.d)) : "Tanpa tanggal") + "<span>" + m.isi.length + " kiriman</span></h4>" +
+        '<div class="galeri">' + m.isi.join("") + "</div></section>";
+    }).join("");
+    g.querySelectorAll("button.buka").forEach(function (b) { b.addEventListener("click", function () { bukaKarusel(b.getAttribute("data-kode")); }); });
+    el("arsip-ket").textContent = butir.length + " kiriman, terbaru dulu, minggu Senin sampai Minggu";
+    var awal = (location.hash || "").split("/")[1];
+    if (awal && KONTEN[awal] && !el("lihat").open) bukaKarusel(awal);
+  }
   function gambarArsip(rows) {
-    var g = el("arsip");
-    if (!rows.length) { g.innerHTML = '<div class="state">Belum ada arsip. Diisi konten/arsip_lama.py dari tabel content_review mesin lama.</div>'; return; }
     rows.forEach(function (r) {
       KONTEN[r.kode] = { kode: r.kode, judul_panel: r.judul, caption: r.caption, jumlah_slide: r.jumlah_slide, gambar_path: r.gambar_path,
         status: "terbit", bentuk: r.mode === "single" ? "tunggal" : "carousel", format: r.mode, link: null, tayang_wib: r.tayang_wib, slides: [] };
     });
-    g.innerHTML = rows.map(function (r) {
-      var u = urlGambar(r.gambar_path), n = Number(r.jumlah_slide || 0), tunggal = n <= 1;
-      return '<article class="item" data-kode="' + esc(r.kode) + '"><button type="button" class="sampul-btn buka" data-kode="' + esc(r.kode) + '" aria-label="Lihat ' + (tunggal ? "kiriman" : n + " slide") + ' ' + esc(r.judul || r.kode) + '"><img loading="lazy" src="' + esc(u) + '" alt="">' +
-        (tunggal ? "" : '<span class="jml">' + n + " slide</span>") + "</button>" +
-        '<div class="m"><span class="redup">' + esc(fmtPukul(r.tayang_wib)) + "</span></div>" + tautanKanal(r.channels) + "</article>";
-    }).join("");
-    g.querySelectorAll("button.buka").forEach(function (b) { b.addEventListener("click", function () { bukaKarusel(b.getAttribute("data-kode")); }); });
-    el("arsip-ket").textContent = rows.length + " kiriman mesin lama (carousel-engine), Juli sampai Agustus 2026, lewat gerbang WhatsApp dan Postiz";
+    SUDAH.arsip = rows.map(function (r) { return { waktu: r.tayang_wib, html: kartu(r, r.judul, r.tayang_wib, r.channels, "", false) }; });
     TERBIT.arsip = rows.length; tulisTerbit();
-    var awal = (location.hash || "").split("/")[1];
-    if (awal && KONTEN[awal] && !el("lihat").open) bukaKarusel(awal);
+    susunMingguan();
   }
-
-  // Kartu kiriman mesin baru: satu kartu per kode yang punya baris rk_terbit,
-  // tautan per kanal yang sudah tayang, kanal yang belum atau gagal disebut polos.
-  // Ditambahkan 25 Oktober 2026: SW4VY5 sudah tayang di Threads tapi tidak terlihat
-  // di galeri karena galeri cuma memuat arsip mesin lama.
-  var STATUS_KANAL = { antre: "menunggu", diproses: "diproses", gagal: "gagal" };
   function gambarTayang(konten, terbit) {
-    var g = el("tayang"), per = {};
+    var per = {}, urutan = ["instagram", "threads", "linkedin"];
     terbit.forEach(function (t) { (per[t.kode] = per[t.kode] || []).push(t); });
-    var rows = konten.filter(function (r) { return per[r.kode]; });
-    if (!rows.length) { g.innerHTML = '<div class="state">Belum ada kiriman mesin baru yang dijadwalkan.</div>'; return; }
-    g.innerHTML = rows.map(function (r) {
+    SUDAH.baru = konten.filter(function (r) { return per[r.kode]; }).map(function (r) {
       KONTEN[r.kode] = KONTEN[r.kode] || r;
-      var u = urlGambar(r.gambar_path), n = Number(r.jumlah_slide || 0), tunggal = n <= 1;
-      var kanal = per[r.kode].sort(function (a, b) { return ["instagram", "threads", "linkedin"].indexOf(a.platform) - ["instagram", "threads", "linkedin"].indexOf(b.platform); });
+      var kanal = per[r.kode].sort(function (a, b) { return urutan.indexOf(a.platform) - urutan.indexOf(b.platform); });
       var tayang = kanal.filter(function (t) { return t.url; }).map(function (t) { return { kanal: t.platform, url: t.url }; });
       var belum = kanal.filter(function (t) { return !t.url; }).map(function (t) { return (NAMA_KANAL[t.platform] || t.platform) + " " + (STATUS_KANAL[t.status] || t.status); });
-      return '<article class="item" data-kode="' + esc(r.kode) + '"><button type="button" class="sampul-btn buka" data-kode="' + esc(r.kode) + '" aria-label="Lihat ' + (tunggal ? "kiriman" : n + " slide") + ' ' + esc(r.judul_panel || r.kode) + '"><img loading="lazy" src="' + esc(u) + '" alt="">' +
-        (tunggal ? "" : '<span class="jml">' + n + " slide</span>") + "</button>" +
-        '<div class="m"><span class="kode">' + esc(r.kode) + '</span> <span class="redup">' + esc(fmtPukul(r.terbit_wib || r.diputus_wib)) + "</span></div>" + tautanKanal(tayang) +
-        (belum.length ? '<div class="m redup">' + esc(belum.join(", ")) + "</div>" : "") + "</article>";
-    }).join("");
-    g.querySelectorAll("button.buka").forEach(function (b) { b.addEventListener("click", function () { bukaKarusel(b.getAttribute("data-kode")); }); });
+      var waktu = r.terbit_wib || r.diputus_wib;
+      return { waktu: waktu, html: kartu(r, r.judul_panel, waktu, tayang, belum.join(", "), true) };
+    });
+    susunMingguan();
   }
 
   function gambarLedger(rows) {
@@ -872,9 +895,7 @@
       ambil("rk_terbit_terbaru?select=*" + B + "&limit=60").then(gambarTerbit).catch(function (e) {
         document.querySelector("#terbit tbody").innerHTML = '<tr><td colspan="7" class="state err">' + esc(pesanGalat(e, "rk_terbit_terbaru", "sql/003")) + "</td></tr>";
       }),
-      Promise.all([ambil("rk_konten_terbaru?select=*" + B + "&limit=60"), ambil("rk_terbit_terbaru?select=*" + B + "&limit=200")]).then(function (h) { gambarTayang(h[0], h[1]); }).catch(function () {
-        el("tayang").innerHTML = '<div class="state err">Kiriman mesin baru gagal dimuat.</div>';
-      }),
+      Promise.all([ambil("rk_konten_terbaru?select=*" + B + "&limit=60"), ambil("rk_terbit_terbaru?select=*" + B + "&limit=200")]).then(function (h) { gambarTayang(h[0], h[1]); }).catch(function () { SUDAH.baru = []; susunMingguan(); }),
       ambil("rk_arsip_terbaru?select=*" + B + "&limit=120").then(gambarArsip).catch(function (e) {
         el("arsip").innerHTML = '<div class="state err">' + esc(pesanGalat(e, "rk_arsip_terbaru", "sql/007")) + "</div>";
       }),
