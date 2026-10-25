@@ -323,6 +323,10 @@
       </table></div>
     </div>
     <div class="blok">
+      <h3>Tayang dari mesin baru <span id="tayang-ket">kiriman kode SW yang sudah di-ACC, terbaru dulu</span></h3>
+      <div class="galeri" id="tayang"><div class="state">memuat…</div></div>
+    </div>
+    <div class="blok">
       <h3>Arsip yang sudah tayang <span id="arsip-ket">kiriman mesin lama (carousel-engine), Juli sampai Agustus 2026, lewat gerbang WhatsApp dan Postiz</span></h3>
       <div class="galeri" id="arsip"><div class="state">memuat…</div></div>
     </div>
@@ -789,6 +793,30 @@
     if (awal && KONTEN[awal] && !el("lihat").open) bukaKarusel(awal);
   }
 
+  // Kartu kiriman mesin baru: satu kartu per kode yang punya baris rk_terbit,
+  // tautan per kanal yang sudah tayang, kanal yang belum atau gagal disebut polos.
+  // Ditambahkan 25 Oktober 2026: SW4VY5 sudah tayang di Threads tapi tidak terlihat
+  // di galeri karena galeri cuma memuat arsip mesin lama.
+  var STATUS_KANAL = { antre: "menunggu", diproses: "diproses", gagal: "gagal" };
+  function gambarTayang(konten, terbit) {
+    var g = el("tayang"), per = {};
+    terbit.forEach(function (t) { (per[t.kode] = per[t.kode] || []).push(t); });
+    var rows = konten.filter(function (r) { return per[r.kode]; });
+    if (!rows.length) { g.innerHTML = '<div class="state">Belum ada kiriman mesin baru yang dijadwalkan.</div>'; return; }
+    g.innerHTML = rows.map(function (r) {
+      KONTEN[r.kode] = KONTEN[r.kode] || r;
+      var u = urlGambar(r.gambar_path), n = Number(r.jumlah_slide || 0), tunggal = n <= 1;
+      var kanal = per[r.kode].sort(function (a, b) { return ["instagram", "threads", "linkedin"].indexOf(a.platform) - ["instagram", "threads", "linkedin"].indexOf(b.platform); });
+      var tayang = kanal.filter(function (t) { return t.url; }).map(function (t) { return { kanal: t.platform, url: t.url }; });
+      var belum = kanal.filter(function (t) { return !t.url; }).map(function (t) { return (NAMA_KANAL[t.platform] || t.platform) + " " + (STATUS_KANAL[t.status] || t.status); });
+      return '<article class="item" data-kode="' + esc(r.kode) + '"><button type="button" class="sampul-btn buka" data-kode="' + esc(r.kode) + '" aria-label="Lihat ' + (tunggal ? "kiriman" : n + " slide") + ' ' + esc(r.judul_panel || r.kode) + '"><img loading="lazy" src="' + esc(u) + '" alt="">' +
+        (tunggal ? "" : '<span class="jml">' + n + " slide</span>") + "</button>" +
+        '<div class="m"><span class="kode">' + esc(r.kode) + '</span> <span class="redup">' + esc(fmtPukul(r.terbit_wib || r.diputus_wib)) + "</span></div>" + tautanKanal(tayang) +
+        (belum.length ? '<div class="m redup">' + esc(belum.join(", ")) + "</div>" : "") + "</article>";
+    }).join("");
+    g.querySelectorAll("button.buka").forEach(function (b) { b.addEventListener("click", function () { bukaKarusel(b.getAttribute("data-kode")); }); });
+  }
+
   function gambarLedger(rows) {
     var tb = document.querySelector("#ledger tbody");
     if (!rows.length) { tb.innerHTML = '<tr><td colspan="5" class="state">Ledger kosong.</td></tr>'; return; }
@@ -843,6 +871,9 @@
       }),
       ambil("rk_terbit_terbaru?select=*" + B + "&limit=60").then(gambarTerbit).catch(function (e) {
         document.querySelector("#terbit tbody").innerHTML = '<tr><td colspan="7" class="state err">' + esc(pesanGalat(e, "rk_terbit_terbaru", "sql/003")) + "</td></tr>";
+      }),
+      Promise.all([ambil("rk_konten_terbaru?select=*" + B + "&limit=60"), ambil("rk_terbit_terbaru?select=*" + B + "&limit=200")]).then(function (h) { gambarTayang(h[0], h[1]); }).catch(function () {
+        el("tayang").innerHTML = '<div class="state err">Kiriman mesin baru gagal dimuat.</div>';
       }),
       ambil("rk_arsip_terbaru?select=*" + B + "&limit=120").then(gambarArsip).catch(function (e) {
         el("arsip").innerHTML = '<div class="state err">' + esc(pesanGalat(e, "rk_arsip_terbaru", "sql/007")) + "</div>";
