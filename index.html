@@ -290,8 +290,8 @@
     <div class="blok">
       <h3>Draf <span>status gerbang di kolom kedua</span></h3>
       <div class="scroll"><table id="draf">
-        <thead><tr><th>Kode</th><th>Status</th><th>Judul sampul</th><th>Format</th><th>Penerbit</th><th>Dibuat</th></tr></thead>
-        <tbody><tr><td colspan="6" class="state">memuat…</td></tr></tbody>
+        <thead><tr><th>Kode</th><th>Status</th><th>Judul sampul</th><th>Format</th><th>Dibuat</th></tr></thead>
+        <tbody><tr><td colspan="5" class="state">memuat…</td></tr></tbody>
       </table></div>
     </div>
   </section>
@@ -378,7 +378,16 @@
   // kolom link tidak bisa jalan saat diklik pengunjung.
   function aman(u) { u = String(u || ""); return /^https?:\/\//i.test(u) ? u : "#"; }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-  function nama(id) { return NAMA[id] || id; }
+  // Pemilik 25 Oktober 2026: yang disebut namanya cuma sumber Google, sisanya
+  // "Referensi eksternal N". Nomornya tetap per sumber (urutan NAMA, lalu abjad
+  // untuk sumber baru), jadi angka yang sama selalu menunjuk sumber yang sama.
+  var URUT_REF = Object.keys(NAMA).filter(function (k) { return k.indexOf("gn_") !== 0; });
+  function nama(id) {
+    if (String(id).indexOf("gn_") === 0) return NAMA[id] || "Google News";
+    var i = URUT_REF.indexOf(id);
+    if (i < 0) { URUT_REF.push(id); i = URUT_REF.length - 1; }
+    return "Referensi eksternal " + (i + 1);
+  }
   function id_(x) { return Number(x || 0).toLocaleString("id-ID"); }
   function el(id) { return document.getElementById(id); }
   function fmtWib(s) {
@@ -481,7 +490,7 @@
     var n = { sehat: 0, waspada: 0, mati: 0, "terbit jarang": 0 };
     tb.innerHTML = rows.map(function (r) {
       var st = statusDenyut(r); n[st[1]]++;
-      return "<tr><td>" + esc(nama(r.source)) + ' <span class="kode">' + esc(r.source) + "</span></td>" +
+      return "<tr><td>" + esc(nama(r.source)) + "</td>" +
         '<td><span class="s ' + st[0] + '">' + st[1] + "</span></td>" +
         '<td class="num">' + esc(r.total) + "</td><td>" + esc(fmtHari(r.terbit_terakhir)) + "</td>" +
         "<td>" + esc(fmtPukul(r.masuk_terakhir_wib)) + "</td></tr>";
@@ -581,11 +590,11 @@
       ambil("rk_terbit_terbaru?select=*" + B).catch(function () { return []; })
     ]).then(function (res) {
       var artikel = res[0].map(function (r) {
-        return { "Terbit": r.published_time, "Penerbit": r.penerbit, "Sumber": nama(r.source), "Kode sumber": r.source, "Judul": dekode(r.news_title), "Ringkasan": dekode(r.ringkas),
+        return { "Terbit": r.published_time, "Penerbit": r.penerbit, "Sumber": nama(r.source), "Judul": dekode(r.news_title), "Ringkasan": dekode(r.ringkas),
           "Tautan": r.link, "Jenis": r.jenis, "Fokus": r.fokus, "Jadi draf": r.is_processed ? "ya" : "belum", "Masuk (WIB)": r.masuk_wib, "ID": r.id };
       });
-      var denyut = res[1].map(function (r) { return { "Sumber": nama(r.source), "Kode sumber": r.source, "Total": Number(r.total), "Berita terbaru": r.terbit_terakhir, "Terakhir scraping (WIB)": r.masuk_terakhir_wib }; });
-      var pantau = res[2].map(function (r) { return { "Sumber": nama(r.source), "Kode sumber": r.source, "Terbit": r.published_time, "Bahan": Number(r.artikel), "Terakhir masuk (WIB)": r.terakhir_masuk_wib }; });
+      var denyut = res[1].map(function (r) { return { "Sumber": nama(r.source), "Total": Number(r.total), "Berita terbaru": r.terbit_terakhir, "Terakhir scraping (WIB)": r.masuk_terakhir_wib }; });
+      var pantau = res[2].map(function (r) { return { "Sumber": nama(r.source), "Terbit": r.published_time, "Bahan": Number(r.artikel), "Terakhir masuk (WIB)": r.terakhir_masuk_wib }; });
       var konten = res[3].map(function (r) { return { "Kode": r.kode, "Status": r.status, "Format": r.format, "Audiens": r.audiens, "Pilar": r.pilar, "Judul sampul": r.judul_panel, "Slide": (r.slides || []).map(function (s, i) { return (i + 1) + ". " + s.judul + ": " + s.isi; }).join("\n"), "Caption": r.caption, "CTA": r.cta, "Penerbit": r.penerbit, "Judul asli": dekode(r.news_title), "Tautan": r.link, "Catatan model": r.catatan_model, "Dibuat (WIB)": r.dibuat_wib, "Dikirim (WIB)": r.dikirim_wib, "Diputus (WIB)": r.diputus_wib, "Alasan status": r.alasan_status }; });
       var prospek = res[4].map(function (r) { return { "Tanggal seleksi": r.tanggal, "Terbit": r.published_time, "Penerbit": r.penerbit, "Judul": dekode(r.news_title), "Tautan": r.link, "Catatan model": r.alasan, "Skor": Number(r.skor) }; });
       var terbit = res[5].map(function (r) { return { "Kode": r.kode, "Platform": r.platform, "Status": r.status, "Tautan": r.url, "Terbit (WIB)": r.terbit_wib, "Pesan": r.pesan }; });
@@ -638,7 +647,7 @@
   function gambarDraf(rows) {
     DRAF.total = rows.length; tulisDraf();
     var tb = document.querySelector("#draf tbody");
-    if (!rows.length) { tb.innerHTML = '<tr><td colspan="6" class="state">Belum ada draf.</td></tr>'; return; }
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="5" class="state">Belum ada draf.</td></tr>'; return; }
     tb.innerHTML = rows.map(function (r) {
       var d = r.data || {};
       var slides = (r.slides || []).map(function (s, i) { return '<li><span class="no">' + (i + 2) + '</span><div><b>' + esc(s.judul) + "</b><p>" + tebal(s.isi) + "</p></div></li>"; }).join("");
@@ -653,8 +662,8 @@
         '<footer class="kaki-rinci"><span>Sumber asli: <a class="tautan" href="' + esc(aman(r.link)) + '" target="_blank" rel="noopener noreferrer">' + esc(dekode(r.news_title) || r.penerbit || "rangkuman sepekan") + "</a></span>" +
         (r.catatan_model ? '<span>Catatan model: ' + esc(r.catatan_model) + "</span>" : "") + "</footer></div>";
       return '<tr class="buka"><td class="mono">' + esc(r.kode) + "</td><td>" + status(STATUS_KONTEN, r.status) + "</td>" +
-        '<td class="lebar j">' + esc(r.judul_panel) + "</td><td>" + tag(FORMAT[r.format] || r.format) + tag(r.audiens) + '</td><td class="redup">' + esc(r.penerbit || nama(r.source)) + '</td><td class="redup">' + esc(fmtWib(r.dibuat_wib)) + "</td></tr>" +
-        '<tr class="isi" hidden><td colspan="6">' + rinci + "</td></tr>";
+        '<td class="lebar j">' + esc(r.judul_panel) + "</td><td>" + tag(FORMAT[r.format] || r.format) + tag(r.audiens) + '</td><td class="redup">' + esc(fmtWib(r.dibuat_wib)) + "</td></tr>" +
+        '<tr class="isi" hidden><td colspan="5">' + rinci + "</td></tr>";
     }).join("");
     tb.querySelectorAll("tr.buka").forEach(function (tr) { tr.addEventListener("click", function () { var isi = tr.nextElementSibling; if (isi) isi.hidden = !isi.hidden; }); });
     var terender = rows.filter(function (r) { return r.gambar_path; }).length;
@@ -825,7 +834,7 @@
       }),
       ambil("rk_konten_terbaru?select=*" + B + "&limit=60").then(function (rows) { gambarDraf(rows); gambarGaleri(rows); gambarKonfirmasi(rows); }).catch(function (e) {
         var p = esc(pesanGalat(e, "rk_konten_terbaru", "sql/002 dan sql/003"));
-        document.querySelector("#draf tbody").innerHTML = '<tr><td colspan="6" class="state err">' + p + "</td></tr>";
+        document.querySelector("#draf tbody").innerHTML = '<tr><td colspan="5" class="state err">' + p + "</td></tr>";
         el("galeri").innerHTML = '<div class="state err">' + p + "</div>";
         document.querySelector("#konfirmasi tbody").innerHTML = '<tr><td colspan="6" class="state err">' + p + "</td></tr>";
       }),
