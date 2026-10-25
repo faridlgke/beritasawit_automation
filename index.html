@@ -213,7 +213,7 @@
   <section class="tajuk" aria-label="Tentang halaman ini">
     <p class="nama">BERITASAWIT.ID</p>
     <p class="sub">Media Automation Testing</p>
-    <p class="sangkal"><b>Disclaimer.</b> Jangan gunakan beritasawit.id sebagai sumber informasi. Seluruh isinya dihasilkan mesin secara otomatis, semata-mata untuk menunjukkan bahwa automasi media seperti ini sangat bisa dilakukan di era saat ini.</p>
+    <p class="sangkal"><b>Disclaimer.</b> Jangan gunakan beritasawit.id sebagai sumber informasi. Seluruh isinya dihasilkan secara otomatis, semata-mata untuk menunjukkan bahwa automasi media seperti ini sangat bisa dilakukan di era saat ini.</p>
   </section>
   <header class="kepala">
     <div>
@@ -330,7 +330,7 @@
       <div id="arsip"><div class="state">memuat…</div></div>
     </div>
     <div class="blok">
-      <h3>Riwayat terbit Postiz mesin lama <span id="ledger-ket">semua yang pernah dijadwalkan ke Instagram sejak Juli 2026, termasuk sebelum gerbang tinjauan ada</span></h3>
+      <h3>Riwayat terbit Postiz sebelumnya <span id="ledger-ket">semua yang pernah dijadwalkan ke Instagram sejak Juli 2026, termasuk sebelum gerbang tinjauan ada</span></h3>
       <div class="scroll"><table id="ledger">
         <thead><tr><th>Tayang</th><th>Jenis</th><th>Kanal</th><th>Tema</th><th>Judul artikel</th></tr></thead>
         <tbody><tr><td colspan="5" class="state">memuat…</td></tr></tbody>
@@ -349,7 +349,7 @@
   </dialog>
 
   <footer>
-    Dibaca langsung dari basis data BeritaSawit, baca saja, isi penuh bahan tidak dibuka. Semua konten di sini dibuat mesin dan membawa label (AUTOMATED). Jam dalam WIB. Scraping 05.00, 10.00, 15.00, 20.00, seleksi berita dan copywriting 06.40.
+    Dibaca langsung dari basis data BeritaSawit, baca saja, isi penuh bahan tidak dibuka. Semua konten di sini dibuat otomatis dan membawa label (Automated). Jam dalam WIB. Scraping 05.00, 10.00, 15.00, 20.00, seleksi berita dan copywriting 06.40.
   </footer>
 </div>
 
@@ -773,7 +773,7 @@
     return '<ul class="kanal">' + t.map(function (c) { return '<li><a href="' + esc(aman(c.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(NAMA_KANAL[c.kanal] || c.kanal) + '<span aria-hidden="true">↗</span></a></li>'; }).join("") + "</ul>";
   }
   // Pemilik 25 Oktober 2026: yang sudah tayang dijejerkan per MINGGU terbit,
-  // satu galeri. Kiriman mesin baru (rk_terbit) dan arsip mesin lama (rk_arsip)
+  // satu galeri. Kiriman kode SW (rk_terbit) dan arsip lama (rk_arsip)
   // jadi butir {waktu, html} lalu dikelompokkan Senin sampai Minggu.
   var SUDAH = { baru: null, arsip: null };
   var STATUS_KANAL = { antre: "menunggu", diproses: "diproses", gagal: "gagal" };
