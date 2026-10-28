@@ -234,7 +234,7 @@
   <nav class="sungai" role="tablist" aria-label="Tahap">
     <div class="garis" aria-hidden="true"><span class="mati"></span><span class="hidup"></span></div>
     <button class="st" role="tab" data-tab="riset" aria-selected="true"><span class="ang" id="c1">–</span><span class="nm">Riset</span><span class="titik"></span><span class="ket" id="k1">sumber</span></button>
-    <button class="st" role="tab" data-tab="artikel"><span class="ang" id="c2">–</span><span class="nm">Bahan</span><span class="titik"></span><span class="ket" id="k2">basis data</span></button>
+    <button class="st" role="tab" data-tab="artikel"><span class="ang" id="c2">–</span><span class="nm">Bahan</span><span class="titik"></span><span class="ket" id="k2">lolos ke draf</span></button>
     <button class="st" role="tab" data-tab="draf"><span class="ang" id="c3">–</span><span class="nm">Draf</span><span class="titik"></span><span class="ket" id="k3">copywriting</span></button>
     <button class="st" role="tab" data-tab="desain"><span class="ang" id="c4">–</span><span class="nm">Desain</span><span class="titik"></span><span class="ket" id="k4">render carousel</span></button>
     <button class="st" role="tab" data-tab="konfirmasi"><span class="ang" id="c5">–</span><span class="nm">Konfirmasi</span><span class="titik"></span><span class="ket" id="k5">gerbang WhatsApp</span></button>
@@ -438,8 +438,6 @@
 
     el("c1").innerHTML = sehat + "<small>/" + total + "</small>";
     el("k1").innerHTML = '<span class="dot ' + (sehat >= total * 0.6 ? "ok" : sehat >= total * 0.3 ? "warn" : "bad") + '"></span>sumber menyumbang 30 jam';
-    el("c2").textContent = id_(artikel);
-    el("k2").textContent = "+" + id_(baru) + " dalam 24 jam";
     DRAF.belum = draf; DRAF.dipilih = dipilih; tulisDraf();
     el("c4").textContent = desain;
     el("k4").innerHTML = '<span class="dot ' + (desain ? "ok" : "") + '"></span>sampul terender';
@@ -516,6 +514,7 @@
       var j = r.jenis || "belum dipilah"; jenis[j] = (jenis[j] || 0) + 1;
     });
     el("a-total").textContent = id_(rows.length);
+    el("c2").textContent = id_(draf);   // pemilik 28 Oktober: angka tahap = isi tabelnya
     el("a-sumber").textContent = id_(Object.keys(sumber).length);
     el("a-draf").innerHTML = id_(draf) + (rows.length ? "<small>" + (draf / rows.length * 100).toLocaleString("id-ID", { maximumFractionDigits: 1 }) + " persen</small>" : "");
     el("a-jenis").innerHTML = Object.keys(jenis).sort(function (a, b) { return jenis[b] - jenis[a]; })
