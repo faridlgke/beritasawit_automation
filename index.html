@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BeritaSawit Automation Testing</title>
-<meta name="description" content="Pantauan alur konten otomatis BeritaSawit.id dari denyut scraping sampai terbit, dibaca langsung dari basis datanya.">
+<meta name="description" content="Pantauan alur konten otomatis BeritaSawit.id dari riset sampai terbit, dibaca langsung dari basis datanya.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
@@ -101,6 +101,7 @@
   .lembar h2 b { font-weight: 800; color: var(--accent); }
   .lead { color: var(--ink-2); margin: 10px 0 0; max-width: 74ch; font-size: 0.95rem; }
   .blok { margin-top: 40px; }
+  .lembar > .blok:first-child { margin-top: 8px; }
   .blok h3 { font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); margin: 0 0 10px; display: flex; justify-content: space-between; gap: 8px 20px; flex-wrap: wrap; align-items: baseline; }
   .blok h3 span { text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 0.82rem; }
   .scroll { overflow-x: auto; }
@@ -171,6 +172,13 @@
   .aksi { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
   .aksi .n { color: var(--ink-2); font-size: 0.84rem; }
   .lagi { display: flex; justify-content: center; padding-top: 18px; }
+  .agregat { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0; background: var(--rule); border: 1px solid var(--rule); }
+  .agregat > div { background: var(--bg); padding: 14px 16px; }
+  .agregat dt { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); }
+  .agregat dd { margin: 4px 0 0; font-family: var(--judul); font-weight: 800; font-size: 1.6rem; line-height: 1.2; }
+  .agregat dd small { font-family: var(--sans); font-weight: 500; font-size: 0.8rem; color: var(--ink-2); margin-left: 6px; }
+  .agr-jenis { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  @media (max-width: 640px) { .agregat { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .minggu { margin: 0 0 34px; }
   .minggu h4 { font-size: 0.95rem; font-weight: 700; margin: 0 0 14px; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,.12); display: flex; justify-content: space-between; gap: 12px; }
   .minggu h4 span { font-weight: 500; opacity: .7; }
@@ -217,7 +225,7 @@
   </section>
   <header class="kepala">
     <div>
-      <h1>Alur konten, dari denyut sampai terbit</h1>
+      <h1>Alur konten, dari riset sampai terbit</h1>
     </div>
     <div class="meta"><span id="dimuat">memuat…</span><button id="muat-ulang" type="button" class="ghost">Muat ulang</button></div>
   </header>
@@ -225,7 +233,7 @@
   <p class="petunjuk"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11V5a2 2 0 0 1 4 0v6"/><path d="M13 9.5a2 2 0 0 1 4 0V12"/><path d="M17 11a2 2 0 0 1 4 0v4a7 7 0 0 1-7 7h-1a7 7 0 0 1-6-3.4L4.3 15a2 2 0 0 1 3.4-2L9 15"/></svg> Klik angka di tiap tahap untuk membuka rinciannya di bawah</p>
   <nav class="sungai" role="tablist" aria-label="Tahap">
     <div class="garis" aria-hidden="true"><span class="mati"></span><span class="hidup"></span></div>
-    <button class="st" role="tab" data-tab="denyut" aria-selected="true"><span class="ang" id="c1">–</span><span class="nm">Denyut</span><span class="titik"></span><span class="ket" id="k1">scraping</span></button>
+    <button class="st" role="tab" data-tab="riset" aria-selected="true"><span class="ang" id="c1">–</span><span class="nm">Riset</span><span class="titik"></span><span class="ket" id="k1">sumber</span></button>
     <button class="st" role="tab" data-tab="artikel"><span class="ang" id="c2">–</span><span class="nm">Bahan</span><span class="titik"></span><span class="ket" id="k2">basis data</span></button>
     <button class="st" role="tab" data-tab="draf"><span class="ang" id="c3">–</span><span class="nm">Draf</span><span class="titik"></span><span class="ket" id="k3">copywriting</span></button>
     <button class="st" role="tab" data-tab="desain"><span class="ang" id="c4">–</span><span class="nm">Desain</span><span class="titik"></span><span class="ket" id="k4">render carousel</span></button>
@@ -233,13 +241,13 @@
     <button class="st" role="tab" data-tab="terbit"><span class="ang" id="c6">–</span><span class="nm">Terbit</span><span class="titik"></span><span class="ket" id="k6">per platform</span></button>
   </nav>
 
-  <section class="lembar" id="p-denyut" role="tabpanel">
-    <h2 id="j-denyut">Denyut scraping</h2>
-    <p class="lead" id="l-denyut">Scraping berjalan 05.00, 10.00, 15.00, dan 20.00 WIB. Sumber dihitung sehat kalau menyumbang bahan dalam 30 jam, waspada sampai 72 jam, mati di atas itu. Sumber resmi dan kueri bertopik sempit memang terbit jarang dan tidak dihitung mati.</p>
+  <section class="lembar" id="p-riset" role="tabpanel">
+    <h2 id="j-denyut">Riset sumber</h2>
+    <p class="lead" id="l-denyut">Bahan dikumpulkan 05.00, 10.00, 15.00, dan 20.00 WIB. Sumber dihitung sehat kalau menyumbang bahan dalam 30 jam, waspada sampai 72 jam, mati di atas itu. Sumber resmi dan kueri bertopik sempit memang terbit jarang dan tidak dihitung mati.</p>
     <div class="blok">
       <h3>Per sumber <span>diurutkan dari yang paling baru menyumbang</span></h3>
       <div class="scroll"><table id="denyut">
-        <thead><tr><th>Sumber</th><th>Status</th><th class="num">Total</th><th>Berita terbaru</th><th>Terakhir scraping</th></tr></thead>
+        <thead><tr><th>Sumber</th><th>Status</th><th class="num">Total</th><th>Berita terbaru</th><th>Terakhir masuk</th></tr></thead>
         <tbody><tr><td colspan="6" class="state">memuat…</td></tr></tbody>
       </table></div>
     </div>
@@ -253,43 +261,32 @@
   </section>
 
   <section class="lembar" id="p-artikel" role="tabpanel" hidden>
-    <h2 id="j-artikel">Basis data bahan</h2>
-    <p class="lead">Semua bahan hasil scraping, terbaru dulu, 100 per muat. Judul menaut ke sumber aslinya, kolom penerbit diisi dari feed. Saringan di bawah ikut berlaku pada unduhan Excel.</p>
+    <h2 id="j-artikel">Bahan yang jadi draf</h2>
+    <p class="lead">Yang ditampilkan cuma bahan yang lolos sampai tahap draf. Sisanya dihitung di ringkasan, tidak dijejerkan. Judul menaut ke sumber aslinya.</p>
     <div class="blok">
-      <div class="alat">
-        <select id="f-sumber" aria-label="Saring sumber"><option value="">Semua sumber</option></select>
-        <select id="f-jenis" aria-label="Saring jenis">
-          <option value="">Semua jenis</option>
-          <option value="regulasi">Regulasi</option>
-          <option value="data">Data</option>
-          <option value="insight">Insight</option>
-          <option value="cerita">Cerita</option>
-          <option value="literasi">Literasi</option>
-        </select>
-        <select id="f-status" aria-label="Saring status">
-          <option value="">Semua status</option>
-          <option value="belum">Belum diproses</option>
-          <option value="diproses">Sudah jadi draf</option>
-        </select>
-        <input id="f-cari" type="search" placeholder="Cari di judul…" aria-label="Cari judul">
-        <label class="tgl">dari <input id="f-dari" type="date" aria-label="Terbit sejak"></label>
-        <label class="tgl">sampai <input id="f-sampai" type="date" aria-label="Terbit sampai"></label>
-      </div>
+      <h3>Ringkasan bahan <span>seluruh basis data</span></h3>
+      <dl class="agregat">
+        <div><dt>Terkumpul</dt><dd id="a-total">–</dd></div>
+        <div><dt>Masuk 24 jam</dt><dd id="a-baru">–</dd></div>
+        <div><dt>Sumber</dt><dd id="a-sumber">–</dd></div>
+        <div><dt>Jadi draf</dt><dd id="a-draf">–</dd></div>
+      </dl>
+      <div class="agr-jenis" id="a-jenis"></div>
+    </div>
+    <div class="blok">
       <div class="aksi">
         <span class="n" id="f-n"></span>
         <button id="unduh" type="button" class="utama">Unduh Excel</button>
       </div>
       <div class="scroll"><table id="daftar">
-        <thead><tr><th>Terbit</th><th>Penerbit</th><th>Judul</th><th>Jenis</th><th>Status</th><th>Masuk</th></tr></thead>
-        <tbody><tr><td colspan="6" class="state">memuat…</td></tr></tbody>
+        <thead><tr><th>Terbit</th><th>Penerbit</th><th>Judul</th><th>Jenis</th><th>Masuk</th></tr></thead>
+        <tbody><tr><td colspan="5" class="state">memuat…</td></tr></tbody>
       </table></div>
       <div class="lagi"><button id="muat-lagi" type="button" class="ghost" hidden>Muat 100 lagi</button></div>
     </div>
   </section>
 
   <section class="lembar" id="p-draf" role="tabpanel" hidden>
-    <h2 id="j-draf">Draf konten</h2>
-    <p class="lead">Tiap pagi 06.40 WIB model menilai judul tiga hari terakhir, memilah jenis bahan, pilar, dan audiens, lalu menulis judul sampul, slide carousel atau kiriman tunggal, caption, dan CTA untuk satu yang dipilih. Pilar yang sudah dipilih dua hari terakhir dipotong skornya supaya topiknya beragam. Klik baris draf untuk membuka slide, caption, dan catatan model.</p>
     <div class="blok">
       <h3>Draf <span>status gerbang di kolom kedua</span></h3>
       <div class="scroll"><table id="draf">
@@ -317,8 +314,6 @@
   </section>
 
   <section class="lembar" id="p-terbit" role="tabpanel" hidden>
-    <h2 id="j-terbit">Terbit per platform</h2>
-    <p class="lead">Kiriman yang sudah tayang, dijejerkan per minggu, dengan tautan ke tiap platform di bawah sampulnya. Platform yang belum tayang atau gagal disebut di bawah tautannya. Instagram dan Threads untuk pelaku sawit, LinkedIn untuk pengambil keputusan. Jadwal bawaan 12.00 dan 19.00 WIB, satu kiriman sehari.</p>
     <div class="blok">
       <h3>Sudah tayang, per minggu terbit <span id="arsip-ket">terbaru dulu, minggu Senin sampai Minggu</span></h3>
       <div id="arsip"><div class="state">memuat…</div></div>
@@ -336,7 +331,7 @@
   </dialog>
 
   <footer>
-    Dibaca langsung dari basis data BeritaSawit, baca saja, isi penuh bahan tidak dibuka. Semua konten di sini dibuat otomatis dan membawa label (Automated). Jam dalam WIB. Scraping 05.00, 10.00, 15.00, 20.00, seleksi berita dan copywriting 06.40.
+    Dibaca langsung dari basis data BeritaSawit, baca saja, isi penuh bahan tidak dibuka. Semua konten di sini dibuat otomatis dan membawa label (Automated). Jam dalam WIB. Bahan dikumpulkan 05.00, 10.00, 15.00, 20.00, seleksi berita dan copywriting 06.40.
   </footer>
 </div>
 
@@ -360,11 +355,11 @@
     tolak: ["bad", "ditolak"], terbit: ["ok", "terbit"]
   };
   var STATUS_TERBIT = { antre: ["warn", "antre"], diproses: ["biru", "diproses"], terkirim: ["ok", "terkirim"], gagal: ["bad", "gagal"] };
-  var TAHAP = ["denyut", "artikel", "draf", "desain", "konfirmasi", "terbit"];
+  var TAHAP = ["riset", "artikel", "draf", "desain", "konfirmasi", "terbit"];
 
   var dekoder = document.createElement("textarea");
   function dekode(s) { dekoder.innerHTML = String(s == null ? "" : s); return dekoder.value; }
-  // Tautan dari data scraping hanya boleh http atau https, supaya "javascript:" di
+  // Tautan dari data sumber hanya boleh http atau https, supaya "javascript:" di
   // kolom link tidak bisa jalan saat diklik pengunjung.
   function aman(u) { u = String(u || ""); return /^https?:\/\//i.test(u) ? u : "#"; }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -410,7 +405,8 @@
   function tag(t) { return t ? '<span class="tag">' + esc(t) + "</span>" : ""; }
 
   function pilihTab(nm, simpan) {
-    if (TAHAP.indexOf(nm) < 0) nm = "denyut";
+    if (nm === "denyut") nm = "riset";
+    if (TAHAP.indexOf(nm) < 0) nm = "riset";
     document.querySelectorAll(".sungai [data-tab]").forEach(function (b) { b.setAttribute("aria-selected", b.getAttribute("data-tab") === nm ? "true" : "false"); });
     document.querySelectorAll(".lembar").forEach(function (p) { p.hidden = p.id !== "p-" + nm; });
     if (simpan) {
@@ -430,7 +426,7 @@
   (function () {
     var awal = (location.hash || "").replace("#", "").split("/")[0];
     if (!awal) { try { awal = localStorage.getItem("sw-tab") || ""; } catch (e) {} }
-    pilihTab(awal || "denyut", false);
+    pilihTab(awal || "riset", false);
   })();
 
   function isiSungai(c) {
@@ -452,7 +448,7 @@
     TERBIT.baru = terbit; TERBIT.gagal = gagal; tulisTerbit();
 
     el("j-denyut").innerHTML = "<b>" + sehat + " dari " + total + "</b> sumber menyumbang bahan dalam 30 jam terakhir";
-    el("j-artikel").innerHTML = "<b>" + id_(artikel) + "</b> bahan di basis data, <b>" + id_(baru) + "</b> masuk dalam 24 jam";
+    AGR.baru = baru; tulisAgregat();
 
     el("j-desain").innerHTML = "<b>" + desain + "</b> sampul sudah dirender";
     el("j-konfirmasi").innerHTML = tunggu
@@ -485,7 +481,7 @@
         "<td>" + esc(fmtPukul(r.masuk_terakhir_wib)) + "</td></tr>";
     }).join("");
     el("l-denyut").textContent = "Sehat " + n.sehat + ", waspada " + n.waspada + ", mati " + n.mati + ", terbit jarang " + n["terbit jarang"] +
-      ". Scraping berjalan 05.00, 10.00, 15.00, dan 20.00 WIB. Sehat berarti menyumbang bahan dalam 30 jam. Sumber resmi dan kueri bertopik sempit memang terbit beberapa kali sebulan, jadi tidak dihitung mati.";
+      ". Bahan dikumpulkan 05.00, 10.00, 15.00, dan 20.00 WIB. Sehat berarti menyumbang bahan dalam 30 jam. Sumber resmi dan kueri bertopik sempit memang terbit beberapa kali sebulan, jadi tidak dihitung mati.";
   }
   function gambarPantau(rows) {
     var head = document.querySelector("#pantau thead tr"), tb = document.querySelector("#pantau tbody");
@@ -505,55 +501,52 @@
     }).join("");
   }
 
-  var HAL = 100, daftarOfs = 0, daftarTimer = null;
+  var HAL = 100, daftarOfs = 0;
   var KOLOM_DAFTAR = "id,source,penerbit,news_title,ringkas,published_time,masuk_wib,link,lang,market,jenis,fokus,is_processed,is_relevant";
-  function isiPilihanSumber(rows) {
-    var sel = el("f-sumber"), nilai = sel.value;
-    var ids = rows.map(function (r) { return r.source; }).sort(function (a, b) { return nama(a).localeCompare(nama(b)); });
-    sel.innerHTML = '<option value="">Semua sumber</option>' + ids.map(function (id) { return '<option value="' + esc(id) + '">' + esc(nama(id)) + "</option>"; }).join("");
-    sel.value = nilai;
-  }
-  function saringanDaftar() {
-    var q = B;
-    var sumber = el("f-sumber").value, jenis = el("f-jenis").value, st = el("f-status").value;
-    var cari = el("f-cari").value.trim(), dari = el("f-dari").value, sampai = el("f-sampai").value;
-    if (sumber) q += "&source=eq." + encodeURIComponent(sumber);
-    if (jenis) q += "&jenis=eq." + jenis;
-    if (st === "belum") q += "&is_processed=is.false";
-    if (st === "diproses") q += "&is_processed=is.true";
-    if (cari) q += "&news_title=ilike." + encodeURIComponent("*" + cari.replace(/[%_*,()]/g, " ") + "*");
-    if (dari) q += "&published_time=gte." + dari;
-    if (sampai) q += "&published_time=lte." + sampai;
-    return q;
+  function saringanDaftar() { return B + "&is_processed=is.true"; }
+  var AGR = { rows: null, baru: null };
+  var NAMA_JENIS = { regulasi: "Regulasi", data: "Data", insight: "Insight", cerita: "Cerita", literasi: "Literasi" };
+  function tulisAgregat() {
+    if (AGR.baru !== null) el("a-baru").textContent = id_(AGR.baru);
+    if (!AGR.rows) return;
+    var rows = AGR.rows, draf = 0, sumber = {}, jenis = {};
+    rows.forEach(function (r) {
+      if (r.is_processed) draf++;
+      sumber[r.source] = 1;
+      var j = r.jenis || "belum dipilah"; jenis[j] = (jenis[j] || 0) + 1;
+    });
+    el("a-total").textContent = id_(rows.length);
+    el("a-sumber").textContent = id_(Object.keys(sumber).length);
+    el("a-draf").innerHTML = id_(draf) + (rows.length ? "<small>" + (draf / rows.length * 100).toLocaleString("id-ID", { maximumFractionDigits: 1 }) + " persen</small>" : "");
+    el("a-jenis").innerHTML = Object.keys(jenis).sort(function (a, b) { return jenis[b] - jenis[a]; })
+      .map(function (j) { return '<span class="tag">' + esc(NAMA_JENIS[j] || j) + " " + id_(jenis[j]) + "</span>"; }).join("");
+    el("j-artikel").innerHTML = "<b>" + id_(draf) + "</b> bahan jadi draf dari <b>" + id_(rows.length) + "</b> yang terkumpul";
   }
   function queryDaftar(ofs) {
     return "rk_daftar_artikel?select=" + KOLOM_DAFTAR + "&order=published_time.desc,masuk_wib.desc&limit=" + HAL + "&offset=" + ofs + saringanDaftar();
   }
   function barisArtikel(r) {
-    var st = r.is_processed ? '<span class="s biru">jadi draf</span>' : '<span class="s">belum diproses</span>';
     var ringkas = r.ringkas ? '<span class="r">' + esc(dekode(r.ringkas)) + "</span>" : "";
     return "<tr><td>" + esc(fmtTgl(r.published_time)) + '</td><td class="redup">' + esc(r.penerbit || nama(r.source)) + "</td>" +
       '<td class="judul"><a href="' + esc(aman(r.link)) + '" target="_blank" rel="noopener noreferrer">' + esc(dekode(r.news_title || r.link)) + "</a>" + ringkas + "</td>" +
-      "<td>" + tag(r.jenis) + "</td><td>" + st + '</td><td class="redup">' + esc(fmtWib(r.masuk_wib)) + "</td></tr>";
+      "<td>" + tag(r.jenis) + '</td><td class="redup">' + esc(fmtWib(r.masuk_wib)) + "</td></tr>";
   }
   function muatDaftar(tambah) {
     var tb = document.querySelector("#daftar tbody"), tombol = el("muat-lagi");
-    if (!tambah) { daftarOfs = 0; tb.innerHTML = '<tr><td colspan="6" class="state">memuat…</td></tr>'; }
+    if (!tambah) { daftarOfs = 0; tb.innerHTML = '<tr><td colspan="5" class="state">memuat…</td></tr>'; }
     tombol.disabled = true;
     ambil(queryDaftar(daftarOfs)).then(function (rows) {
       var html = rows.map(barisArtikel).join("");
-      if (!tambah) tb.innerHTML = html || '<tr><td colspan="6" class="state">Tidak ada bahan yang cocok.</td></tr>';
+      if (!tambah) tb.innerHTML = html || '<tr><td colspan="5" class="state">Belum ada bahan yang jadi draf.</td></tr>';
       else if (html) tb.insertAdjacentHTML("beforeend", html);
       daftarOfs += rows.length;
       el("f-n").textContent = daftarOfs ? daftarOfs + " ditampilkan" : "";
       tombol.hidden = rows.length < HAL; tombol.disabled = false;
     }).catch(function (e) {
-      tb.innerHTML = '<tr><td colspan="6" class="state err">' + esc(pesanGalat(e, "rk_daftar_artikel", "sql/001")) + "</td></tr>";
+      tb.innerHTML = '<tr><td colspan="5" class="state err">' + esc(pesanGalat(e, "rk_daftar_artikel", "sql/001")) + "</td></tr>";
       tombol.hidden = true;
     });
   }
-  ["f-sumber", "f-jenis", "f-status", "f-dari", "f-sampai"].forEach(function (id) { el(id).addEventListener("change", function () { muatDaftar(false); }); });
-  el("f-cari").addEventListener("input", function () { clearTimeout(daftarTimer); daftarTimer = setTimeout(function () { muatDaftar(false); }, 350); });
   el("muat-lagi").addEventListener("click", function () { muatDaftar(true); });
 
   function ambilSemua(dasar, batas) {
@@ -582,7 +575,7 @@
         return { "Terbit": r.published_time, "Penerbit": r.penerbit, "Sumber": nama(r.source), "Judul": dekode(r.news_title), "Ringkasan": dekode(r.ringkas),
           "Tautan": r.link, "Jenis": r.jenis, "Fokus": r.fokus, "Jadi draf": r.is_processed ? "ya" : "belum", "Masuk (WIB)": r.masuk_wib, "ID": r.id };
       });
-      var denyut = res[1].map(function (r) { return { "Sumber": nama(r.source), "Total": Number(r.total), "Berita terbaru": r.terbit_terakhir, "Terakhir scraping (WIB)": r.masuk_terakhir_wib }; });
+      var denyut = res[1].map(function (r) { return { "Sumber": nama(r.source), "Total": Number(r.total), "Berita terbaru": r.terbit_terakhir, "Terakhir masuk (WIB)": r.masuk_terakhir_wib }; });
       var pantau = res[2].map(function (r) { return { "Sumber": nama(r.source), "Terbit": r.published_time, "Bahan": Number(r.artikel), "Terakhir masuk (WIB)": r.terakhir_masuk_wib }; });
       var konten = res[3].map(function (r) { return { "Kode": r.kode, "Status": r.status, "Format": r.format, "Audiens": r.audiens, "Pilar": r.pilar, "Judul sampul": r.judul_panel, "Slide": (r.slides || []).map(function (s, i) { return (i + 1) + ". " + s.judul + ": " + s.isi; }).join("\n"), "Caption": r.caption, "CTA": r.cta, "Penerbit": r.penerbit, "Judul asli": dekode(r.news_title), "Tautan": r.link, "Catatan model": r.catatan_model, "Dibuat (WIB)": r.dibuat_wib, "Dikirim (WIB)": r.dikirim_wib, "Diputus (WIB)": r.diputus_wib, "Alasan status": r.alasan_status }; });
       var prospek = res[4].map(function (r) { return { "Tanggal seleksi": r.tanggal, "Terbit": r.published_time, "Penerbit": r.penerbit, "Judul": dekode(r.news_title), "Tautan": r.link, "Catatan model": r.alasan, "Skor": Number(r.skor) }; });
@@ -591,14 +584,14 @@
       var ws = XLSX.utils.json_to_sheet(artikel);
       ws["!cols"] = [{ wch: 11 }, { wch: 22 }, { wch: 22 }, { wch: 14 }, { wch: 70 }, { wch: 60 }, { wch: 60 }, { wch: 10 }, { wch: 28 }, { wch: 9 }, { wch: 18 }, { wch: 38 }];
       XLSX.utils.book_append_sheet(wb, ws, "bahan");
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(denyut), "denyut sumber");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(denyut), "riset sumber");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(pantau), "per hari");
       if (konten.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(konten), "draf konten");
       if (prospek.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(prospek), "prospek");
       if (terbit.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(terbit), "terbit");
       var stempel = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "");
       XLSX.writeFile(wb, "beritasawit_" + stempel + ".xlsx");
-      tombol.textContent = "Unduh Excel (" + id_(artikel.length) + " bahan)"; tombol.disabled = false;
+      tombol.textContent = "Unduh Excel (" + id_(artikel.length) + " bahan jadi draf)"; tombol.disabled = false;
     }).catch(function (e) { tombol.textContent = "Gagal: " + e.message.slice(0, 60); tombol.disabled = false; });
   }
   el("unduh").addEventListener("click", unduhExcel);
@@ -611,7 +604,7 @@
     var n = DRAF.total == null ? DRAF.belum : DRAF.total;
     el("c3").textContent = id_(n);
     el("k3").innerHTML = '<span class="dot ' + (DRAF.belum ? "warn" : "ok") + '"></span>' + (DRAF.belum ? DRAF.belum + " belum dikirim" : "semua sudah dikirim");
-    el("j-draf").innerHTML = "<b>" + id_(n) + "</b> draf ditulis, <b>" + DRAF.belum + "</b> belum dikirim ke WhatsApp, <b>" + DRAF.dipilih + "</b> berita lolos seleksi harian";
+    if (el("j-draf")) el("j-draf").innerHTML = "<b>" + id_(n) + "</b> draf ditulis, <b>" + DRAF.belum + "</b> belum dikirim ke WhatsApp, <b>" + DRAF.dipilih + "</b> berita lolos seleksi harian";
   }
   // Kanal gerbang brand ini (profil.json gerbang.kanal). Bentuk per platform
   // mengikuti cara terbit_postiz mengirimnya: satu post berisi semua slide.
@@ -749,8 +742,8 @@
   var TERBIT = { baru: 0, gagal: 0, arsip: 0 };
   function tulisTerbit() {
     var siap = SUDAH.baru !== null && SUDAH.arsip !== null;
-    var n = siap ? SUDAH.baru.length + SUDAH.arsip.length : TERBIT.baru + TERBIT.arsip;
-    el("j-terbit").innerHTML = n ? "<b>" + id_(n) + "</b> kiriman sudah tayang" + (TERBIT.gagal ? ", <b>" + TERBIT.gagal + "</b> kanal gagal" : "") : "<b>Belum ada</b> kiriman yang tayang";
+    var n = siap && SUDAH.tampil !== null ? SUDAH.tampil : TERBIT.baru;
+    if (el("j-terbit")) el("j-terbit").innerHTML = n ? "<b>" + id_(n) + "</b> kiriman sudah tayang" + (TERBIT.gagal ? ", <b>" + TERBIT.gagal + "</b> kanal gagal" : "") : "<b>Belum ada</b> kiriman yang tayang";
     el("c6").textContent = id_(n);
     el("k6").innerHTML = n ? '<span class="dot ' + (TERBIT.gagal ? "bad" : "ok") + '"></span>' + (TERBIT.gagal ? TERBIT.gagal + " gagal" : "kiriman tayang") : '<span class="dot"></span>belum ada yang tayang';
   }
@@ -763,7 +756,10 @@
   // Pemilik 25 Oktober 2026: yang sudah tayang dijejerkan per MINGGU terbit,
   // satu galeri. Kiriman kode SW (rk_terbit) dan arsip lama (rk_arsip)
   // jadi butir {waktu, html} lalu dikelompokkan Senin sampai Minggu.
-  var SUDAH = { baru: null, arsip: null };
+  // Pemilik 28 Oktober 2026: sampul lama memakai foto media lain, jadi yang
+  // tampil cuma kiriman sejak minggu 19 sampai 25 Oktober 2026.
+  var TAYANG_SEJAK = "2026-10-19";
+  var SUDAH = { baru: null, arsip: null, tampil: null };
   var STATUS_KANAL = { antre: "menunggu", diproses: "diproses", gagal: "gagal" };
   function kartu(r, judul, waktu, kanalTayang, catatan, kode) {
     var u = urlGambar(r.gambar_path), n = Number(r.jumlah_slide || 0), tunggal = n <= 1;
@@ -786,8 +782,9 @@
   }
   function susunMingguan() {
     if (SUDAH.baru === null || SUDAH.arsip === null) return;
-    var g = el("arsip"), butir = SUDAH.baru.concat(SUDAH.arsip).filter(function (b) { return b.waktu; });
-    if (!butir.length) { g.innerHTML = '<div class="state">Belum ada kiriman yang tayang.</div>'; return; }
+    var g = el("arsip"), butir = SUDAH.baru.concat(SUDAH.arsip).filter(function (b) { return b.waktu && String(b.waktu).slice(0, 10) >= TAYANG_SEJAK; });
+    SUDAH.tampil = butir.length;
+    if (!butir.length) { g.innerHTML = '<div class="state">Belum ada kiriman yang tayang.</div>'; tulisTerbit(); return; }
     butir.sort(function (a, b) { return String(b.waktu).localeCompare(String(a.waktu)); });
     var urut = [], per = {};
     butir.forEach(function (b) {
@@ -846,7 +843,7 @@
       ambil("rk_corong?select=*" + B).then(function (r) { if (r[0]) isiSungai(r[0]); }).catch(function (e) {
         el("k1").textContent = /PGRST205/.test(e.message) ? "view rk_corong belum ada, jalankan sql/003" : "ringkasan gagal";
       }),
-      ambil("rk_denyut_sumber?select=*" + B).then(function (rows) { gambarDenyut(rows); isiPilihanSumber(rows); }).catch(function (e) {
+      ambil("rk_denyut_sumber?select=*" + B).then(gambarDenyut).catch(function (e) {
         document.querySelector("#denyut tbody").innerHTML = '<tr><td colspan="6" class="state err">' + esc(pesanGalat(e, "rk_denyut_sumber", "sql/001")) + "</td></tr>";
       }),
       ambil("rk_pantau_sumber?select=*" + B).then(gambarPantau).catch(function (e) {
@@ -866,6 +863,7 @@
         el("arsip").innerHTML = '<div class="state err">' + esc(pesanGalat(e, "rk_arsip_terbaru", "sql/007")) + "</div>";
       }),
     ];
+    janji.push(ambilSemua("rk_daftar_artikel?select=id,source,jenis,is_processed" + B + "&order=id", 20000).then(function (rows) { AGR.rows = rows; tulisAgregat(); }).catch(function () {}));
     muatDaftar(false);
     Promise.all(janji).then(function () {
       el("dimuat").textContent = "diperbarui " + new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }).replace(":", ".") + " waktu perangkat";
