@@ -338,6 +338,11 @@
     var m = $("#muat"); m.textContent = pesan; m.classList.add("bad"); layar("muat");
   }
   function namaKanal(k) { return KANAL[k] || k; }
+  // Baris lama di basis data masih memakai istilah teknis.
+  function bahasaOrang(s) {
+    var t = String(s || "").replace(/ditahan gerbang mutu/gi, "belum lolos cek kualitas").replace(/bidang polos/gi, "punya area polos");
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
 
   document.getElementById("keluar").addEventListener("click", function () {
     fetch("/api/keluar", { method: "POST" }).finally(function () { location.replace("/login"); });
@@ -408,8 +413,8 @@
     // Peringatan: kegagalan terakhir dulu, lalu catatan model yang dulu ikut ke WA.
     var p = K.keputusan, umum = $("#pengumuman");
     umum.hidden = true;
-    if (p && p.status === "gagal" && p.hasil) { umum.textContent = "Keputusan terakhir gagal: " + p.hasil; umum.hidden = false; }
-    else if (bolehPutus() && K.alasan_status && /ditahan|gagal/i.test(K.alasan_status)) { umum.textContent = K.alasan_status; umum.hidden = false; }
+    if (p && p.status === "gagal" && p.hasil) { umum.textContent = "Keputusan terakhir gagal: " + bahasaOrang(p.hasil); umum.hidden = false; }
+    else if (bolehPutus() && K.alasan_status && /belum lolos|ditahan|gagal/i.test(K.alasan_status)) { umum.textContent = bahasaOrang(K.alasan_status); umum.hidden = false; }
     var cat = String(K.catatan_model || "").split(/\s*\|\s*/).filter(function (x) { return x.trim(); });
     $("#peringatan").hidden = !cat.length || !bolehPutus();
     var pi = $("#peringatan-isi"); pi.innerHTML = "";
@@ -562,7 +567,7 @@
     t.className = "tanda" + (ok && p.aksi !== "stop" ? "" : " stop");
     t.textContent = ok ? (p.aksi === "stop" ? "■" : "✓") : "!";
     $("#h-judul").textContent = !ok ? "Belum berhasil" : p.aksi === "stop" ? K.kode + " distop" : p.aksi === "revisi" ? "Catatan revisi tercatat" : p.aksi === "geser" ? "Jadwal digeser" : "Terjadwal";
-    $("#h-isi").textContent = p.hasil || "";
+    $("#h-isi").textContent = bahasaOrang(p.hasil);
     $("#h-balik").hidden = false;
     layar("hasil");
   }
