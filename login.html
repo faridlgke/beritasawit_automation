@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Masuk BeritaSawit Automation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root { --bg: #FFFFFF; --ink: #212121; --ink-2: #5B6B59; --rule-2: #CFDACB; --accent: #04560A; --accent-ink: #F4F9F2; --bad: #A33A3A;
+    --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; --judul: "Montserrat", var(--sans); }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0F1A12; --ink: #ECEFE8; --ink-2: #A3B0A5; --rule-2: #2E4032; --accent: #5FD455; --accent-ink: #0B1A0D; --bad: #E08A8A; } }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body { background: var(--bg); color: var(--ink); font: 400 16px/1.5 var(--sans); min-height: 100vh; display: grid; place-items: center; padding: 24px 20px; }
+  main { width: 100%; max-width: 360px; }
+  h1 { font: 900 2rem/1 var(--judul); letter-spacing: -0.02em; color: var(--accent); margin: 0 0 6px; }
+  p { margin: 0 0 28px; color: var(--ink-2); font-size: 0.94rem; }
+  label { display: block; font-size: 0.84rem; font-weight: 500; color: var(--ink-2); margin-bottom: 14px; }
+  input { display: block; width: 100%; margin-top: 5px; min-height: 48px; padding: 11px 12px; font: inherit; font-size: 1rem; color: var(--ink); background: var(--bg); border: 1px solid var(--rule-2); border-radius: 10px; }
+  button { width: 100%; min-height: 50px; margin-top: 6px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; font: inherit; font-weight: 700; cursor: pointer; }
+  button:disabled { opacity: 0.6; cursor: progress; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  #galat { min-height: 1.5em; margin: 12px 0 0; color: var(--bad); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>BeritaSawit</h1>
+  <p>Automation. Masuk untuk melihat alur dan memutuskan konten.</p>
+  <form id="f">
+    <label for="u">Username<input id="u" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+    <label for="p">Password<input id="p" name="password" type="password" autocomplete="current-password" required></label>
+    <button id="b" type="submit">Masuk</button>
+    <div id="galat" role="alert"></div>
+  </form>
+</main>
+<script>
+  document.getElementById("f").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var b = document.getElementById("b"), g = document.getElementById("galat");
+    b.disabled = true; g.textContent = "";
+    fetch("/api/masuk", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ username: document.getElementById("u").value.trim(), password: document.getElementById("p").value }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j.ok) { g.textContent = j.alasan || "Gagal masuk."; b.disabled = false; return; }
+        var l = new URLSearchParams(location.search).get("lanjut") || "/";
+        location.replace(/^\/(?!\/)/.test(l) ? l : "/");
+      })
+      .catch(function () { g.textContent = "Tidak tersambung, coba lagi."; b.disabled = false; });
+  });
+</script>
+</body>
+</html>

@@ -234,7 +234,7 @@
     <div>
       <h1>Alur konten, dari riset sampai terbit</h1>
     </div>
-    <div class="meta"><span id="dimuat">memuat…</span><button id="muat-ulang" type="button" class="ghost">Muat ulang</button></div>
+    <div class="meta"><span id="dimuat">memuat…</span><button id="muat-ulang" type="button" class="ghost">Muat ulang</button><button id="keluar" type="button" class="ghost">Keluar</button></div>
   </header>
 
   <p class="petunjuk"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11V5a2 2 0 0 1 4 0v6"/><path d="M13 9.5a2 2 0 0 1 4 0V12"/><path d="M17 11a2 2 0 0 1 4 0v4a7 7 0 0 1-7 7h-1a7 7 0 0 1-6-3.4L4.3 15a2 2 0 0 1 3.4-2L9 15"/></svg> Klik angka di tiap tahap untuk membuka rinciannya di bawah</p>
@@ -421,6 +421,9 @@
       if (history.replaceState) history.replaceState(null, "", "#" + nm);
     }
   }
+  document.getElementById("keluar").addEventListener("click", function () {
+    fetch("/api/keluar", { method: "POST" }).finally(function () { location.replace("/login"); });
+  });
   var stasiun = Array.prototype.slice.call(document.querySelectorAll(".sungai [data-tab]"));
   stasiun.forEach(function (b, i) {
     b.addEventListener("click", function () { pilihTab(b.getAttribute("data-tab"), true); });
