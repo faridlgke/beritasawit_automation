@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Review kiriman BeritaSawit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #FFFFFF; --ink: #212121; --ink-2: #5B6B59; --rule: #E6EDE4; --rule-2: #CFDACB;
+    --accent: #04560A; --accent-ink: #F4F9F2; --hover: #F4F9F2; --ok: #3C6B39; --warn: #8A6220; --bad: #A33A3A; --bad-ink: #FFFFFF; --panggung: #F1F4EF;
+    --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --judul: "Montserrat", var(--sans);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1A12; --ink: #ECEFE8; --ink-2: #A3B0A5; --rule: #1E2B20; --rule-2: #2E4032;
+      --accent: #5FD455; --accent-ink: #0B1A0D; --hover: #152218; --ok: #7FBF7A; --warn: #E0B35C; --bad: #E08A8A; --bad-ink: #1F0E0E; --panggung: #152218;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1A12; --ink: #ECEFE8; --ink-2: #A3B0A5; --rule: #1E2B20; --rule-2: #2E4032;
+    --accent: #5FD455; --accent-ink: #0B1A0D; --hover: #152218; --ok: #7FBF7A; --warn: #E0B35C; --bad: #E08A8A; --bad-ink: #1F0E0E; --panggung: #152218;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--ink); font: 400 16px/1.55 var(--sans); }
+  button, textarea, input { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  .pc { display: none; }
+  .laman { max-width: 1180px; margin: 0 auto; }
+
+  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px 8px; }
+  .merek { font-family: var(--judul); font-weight: 800; font-size: 0.95rem; color: var(--accent); letter-spacing: -0.01em; text-decoration: none; }
+  .navi { display: flex; gap: 14px; align-items: center; font-size: 0.86rem; }
+  .navi a, .navi button { color: var(--ink-2); background: none; border: 0; padding: 6px 0; text-decoration: none; font-weight: 500; }
+  .navi a:hover, .navi button:hover { color: var(--ink); }
+  .status { font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; color: var(--warn); }
+  .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .status.ok { color: var(--ok); } .status.bad { color: var(--bad); }
+  h1 { font: 800 1.34rem/1.2 var(--judul); letter-spacing: -0.015em; margin: 0; padding: 4px 16px 14px; text-wrap: balance; }
+  .baris-status { padding: 0 16px 6px; }
+  .pesan { padding: 48px 16px; color: var(--ink-2); text-align: center; }
+  .pesan.bad { color: var(--bad); }
+
+  /* daftar */
+  #daftar h2 { font: 800 1.02rem/1.3 var(--judul); margin: 22px 16px 12px; }
+  #daftar .kosong { margin: 0 16px; color: var(--ink-2); font-size: 0.94rem; }
+  .kisi { list-style: none; margin: 0; padding: 0 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 18px 14px; }
+  .kisi a { display: block; text-decoration: none; }
+  .kisi img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 6px; background: var(--rule); }
+  .kisi b { display: block; font-weight: 600; font-size: 0.9rem; line-height: 1.3; margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .kisi small { display: block; font-size: 0.78rem; color: var(--ink-2); margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .kisi a:hover b { text-decoration: underline; }
+
+  /* review */
+  .rel { position: relative; }
+  #slide { list-style: none; margin: 0; padding: 0 16px; display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; scrollbar-width: none; }
+  #slide::-webkit-scrollbar { display: none; }
+  #slide li { flex: 0 0 calc(100% - 28px); scroll-snap-align: start; }
+  #slide li:only-child { flex-basis: 100%; }
+  #slide img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; border-radius: 6px; background: var(--rule); user-select: none; -webkit-user-drag: none; }
+  #slide.seret { scroll-snap-type: none; cursor: grabbing; }
+  .panah { display: none; position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--rule-2); background: var(--bg); font-size: 1.2rem; line-height: 1; place-items: center; box-shadow: 0 1px 6px rgb(0 0 0 / 0.16); }
+  .panah:disabled { opacity: 0.35; cursor: default; }
+  #kiri { left: 8px; } #kanan { right: 8px; }
+  .bawah-geser { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px 0; }
+  .titik { display: flex; gap: 6px; }
+  .titik i { width: 7px; height: 7px; border-radius: 50%; background: var(--rule-2); }
+  .titik i.on { background: var(--accent); }
+  .hitung { font-size: 0.82rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .jempol { display: none; list-style: none; margin: 12px 0 0; padding: 0; gap: 8px; }
+  .jempol button { padding: 0; border: 2px solid transparent; border-radius: 5px; background: none; display: block; width: 100%; }
+  .jempol button[aria-current="true"] { border-color: var(--accent); }
+  .jempol img { display: block; width: 100%; aspect-ratio: 4 / 5; border-radius: 3px; }
+
+  .pengumuman { margin: 16px 16px 0; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--rule-2); font-size: 0.92rem; }
+  .pengumuman.bad { border-color: var(--bad); color: var(--bad); }
+  .pengumuman.warn { border-color: var(--warn); }
+  .pengumuman h2 { font: 600 0.82rem/1.3 var(--sans); color: var(--warn); margin: 0 0 6px; }
+  .pengumuman ul { margin: 0; padding-left: 18px; }
+
+  .jadwal { margin: 16px 16px 0; padding: 14px 0; border-block: 1px solid var(--rule); display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; }
+  .label { font-size: 0.8rem; color: var(--ink-2); }
+  .jadwal strong { font-weight: 600; grid-column: 1; }
+  .jadwal .kanal { grid-column: 1; font-size: 0.88rem; color: var(--ink-2); }
+  .jadwal .tautan { grid-column: 2; grid-row: 1 / span 3; }
+  .tautan { background: none; border: 1px solid var(--rule-2); border-radius: 999px; padding: 8px 14px; font-size: 0.88rem; font-weight: 600; min-height: 40px; }
+  .tautan:hover, .kedua:hover { border-color: var(--ink-2); }
+
+  .teks { padding: 16px 16px 8px; }
+  .teks h2 { font: 600 0.8rem/1.3 var(--sans); color: var(--ink-2); margin: 0 0 8px; }
+  .teks p { margin: 0 0 12px; font-size: 0.96rem; max-width: 65ch; white-space: pre-line; overflow-wrap: anywhere; }
+  .ruang-bar { height: 84px; }
+
+  .bar { position: fixed; inset: auto 0 0 0; background: var(--bg); border-top: 1px solid var(--rule); padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); z-index: 3; }
+  .bar > div { display: grid; grid-template-columns: 1fr 1fr 1.6fr; gap: 8px; }
+  .acc { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; min-height: 52px; font-weight: 700; font-size: 1.04rem; }
+  .acc:hover { filter: brightness(1.12); }
+  .kedua { background: none; border: 1px solid var(--rule-2); border-radius: 10px; min-height: 52px; font-weight: 600; font-size: 0.96rem; }
+  .kedua.bahaya { color: var(--bad); border-color: var(--bad); }
+
+  .tirai { position: fixed; inset: 0; background: rgb(0 0 0 / 0.46); display: flex; align-items: flex-end; justify-content: center; z-index: 5; }
+  .lembar { background: var(--bg); width: 100%; max-width: 480px; border-radius: 16px 16px 0 0; padding: 18px 16px calc(16px + env(safe-area-inset-bottom)); max-height: 90vh; overflow-y: auto; }
+  .lembar h3 { font: 800 1.14rem/1.25 var(--judul); margin: 0 0 6px; }
+  .lembar p { margin: 0 0 14px; color: var(--ink-2); font-size: 0.94rem; }
+  .lembar .galat { color: var(--bad); margin: 8px 0 0; }
+  .pilih { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 14px; }
+  .pilih button { background: none; border: 1px solid var(--rule-2); border-radius: 10px; padding: 8px 4px; min-height: 58px; font-size: 0.84rem; line-height: 1.25; }
+  .pilih button b { display: block; font-size: 0.98rem; font-weight: 600; }
+  .pilih button[aria-pressed="true"] { border: 2px solid var(--accent); background: var(--hover); }
+  .dua { display: grid; grid-template-columns: 3fr 2fr; gap: 8px; margin-bottom: 14px; }
+  label { display: block; font-size: 0.82rem; color: var(--ink-2); }
+  input, textarea { display: block; width: 100%; margin-top: 4px; background: var(--bg); border: 1px solid var(--rule-2); border-radius: 10px; padding: 11px 12px; font-size: 1rem; min-height: 48px; color-scheme: light dark; color: var(--ink); }
+  textarea { min-height: 112px; resize: vertical; }
+  .aksi { display: grid; gap: 8px; margin-top: 14px; }
+  .aksi .acc { min-height: 50px; }
+  .aksi .acc.bahaya { background: var(--bad); color: var(--bad-ink); }
+  .aksi .acc:disabled { opacity: 0.45; cursor: not-allowed; }
+  .batal { background: none; border: 0; min-height: 44px; font-weight: 600; color: var(--ink-2); }
+
+  #hasil { max-width: 560px; padding: 56px 20px 32px; }
+  .tanda { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 18px; font-size: 1.5rem; font-weight: 700; color: var(--accent-ink); background: var(--ok); }
+  .tanda.stop { background: var(--bad); color: var(--bad-ink); }
+  .tanda.tunggu { background: none; border: 3px solid var(--rule-2); border-top-color: var(--accent); }
+  @media (prefers-reduced-motion: no-preference) { .tanda.tunggu { animation: putar 0.9s linear infinite; } @keyframes putar { to { transform: rotate(360deg); } } }
+  #hasil h2 { font: 800 1.4rem/1.2 var(--judul); margin: 0 0 10px; text-wrap: balance; }
+  #hasil p { margin: 0 0 12px; color: var(--ink-2); }
+  .tombol-hasil { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+  .tombol-hasil a { display: inline-flex; align-items: center; text-decoration: none; }
+
+  /* PC: slide kiri, keputusan dan isi kanan */
+  @media (min-width: 900px) {
+    header { padding: 22px 32px 6px; }
+    .merek { font-size: 1.05rem; }
+    .pc { display: inline; }
+    #daftar h2 { margin: 28px 32px 14px; }
+    #daftar .kosong { margin: 0 32px; }
+    .kisi { padding: 0 32px; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+    .kerja { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); column-gap: 40px; padding: 8px 32px 48px; align-items: start; }
+    .kepala-isi { grid-column: 2; grid-row: 1; }
+    h1 { font-size: 1.7rem; padding: 0 0 12px; }
+    .baris-status { padding: 0 0 14px; }
+    .geser { grid-column: 1; grid-row: 1 / span 2; position: sticky; top: 16px; background: var(--panggung); border-radius: 12px; padding: 16px; }
+    .sisi { grid-column: 2; grid-row: 2; }
+    #slide { padding: 0; scroll-padding-inline: 0; cursor: grab; gap: 12px; }
+    #slide li { flex: 0 0 100%; }
+    #slide img { max-height: calc(100vh - 248px); width: auto; margin: 0 auto; }
+    .panah { display: grid; }
+    .bawah-geser { padding: 10px 0 0; }
+    .titik { display: none; }
+    .jempol { display: grid; grid-template-columns: repeat(var(--n, 7), minmax(0, 1fr)); }
+    .bar { position: static; padding: 0; border: 0; margin-bottom: 18px; background: none; }
+    .jadwal, .pengumuman { margin-inline: 0; }
+    .jadwal { margin-top: 0; }
+    .pengumuman { margin-top: 0; margin-bottom: 16px; }
+    .teks { padding: 16px 0 0; }
+    .teks p { font-size: 1rem; }
+    .ruang-bar { display: none; }
+    .tirai { align-items: center; }
+    .lembar { border-radius: 14px; padding: 22px; }
+    #hasil { padding-top: 96px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="laman">
+  <a class="merek" href="/review">BeritaSawit</a>
+  <nav class="navi" aria-label="Halaman">
+    <a href="/review">Daftar review</a>
+    <a href="/">Alur konten</a>
+    <button id="keluar" type="button">Keluar</button>
+  </nav>
+</header>
+
+<main id="muat" class="laman pesan">Memuat…</main>
+
+<main id="daftar" class="laman" hidden>
+  <h2>Menunggu keputusan</h2>
+  <p class="kosong" id="kosong-tunggu" hidden>Tidak ada kiriman yang menunggu.</p>
+  <ul class="kisi" id="kisi-tunggu"></ul>
+  <h2>Terjadwal</h2>
+  <p class="kosong" id="kosong-jadwal" hidden>Tidak ada jadwal yang akan datang.</p>
+  <ul class="kisi" id="kisi-jadwal"></ul>
+</main>
+
+<main id="review" class="laman" hidden>
+  <div class="kerja">
+    <div class="kepala-isi">
+      <h1 id="judul"></h1>
+      <div class="baris-status"><span class="status" id="status"></span></div>
+    </div>
+    <div class="geser" aria-label="Slide carousel">
+      <div class="rel">
+        <ul id="slide" tabindex="0" aria-label="Geser untuk melihat slide"></ul>
+        <button class="panah" id="kiri" aria-label="Slide sebelumnya">←</button>
+        <button class="panah" id="kanan" aria-label="Slide berikutnya">→</button>
+      </div>
+      <div class="bawah-geser"><div class="titik" id="titik"></div><span class="hitung">Slide <span id="ke">1</span> dari <span id="total"></span></span></div>
+      <ul class="jempol" id="jempol"></ul>
+    </div>
+
+    <div class="sisi">
+      <nav class="bar" id="bar" aria-label="Keputusan">
+        <div>
+          <button class="kedua bahaya" data-buka="stop">Stop</button>
+          <button class="kedua" data-buka="revisi">Revisi</button>
+          <button class="acc" data-buka="acc">ACC</button>
+        </div>
+      </nav>
+      <div class="pengumuman bad" id="pengumuman" hidden></div>
+      <div class="pengumuman warn" id="peringatan" hidden><h2>Catatan model, periksa sebelum ACC</h2><ul id="peringatan-isi"></ul></div>
+      <div class="jadwal" id="kotak-jadwal">
+        <span class="label">Tayang</span>
+        <strong id="teks-jadwal"></strong>
+        <span class="kanal" id="teks-kanal"></span>
+        <button class="tautan" id="tombol-ganti" data-buka="ganti" aria-label="Ganti jadwal">Ganti<span class="pc"> jadwal</span></button>
+      </div>
+      <section class="teks" id="blok-caption"><h2>Caption</h2><p id="caption"></p></section>
+      <section class="teks" id="blok-komen" hidden><h2>Komentar pertama Instagram</h2><p id="komen"></p></section>
+      <section class="teks" id="blok-sumber" hidden><h2>Sumber</h2><p id="sumber"></p></section>
+      <div class="ruang-bar" id="ruang-bar"></div>
+    </div>
+  </div>
+</main>
+
+<section id="hasil" class="laman" hidden aria-live="polite">
+  <div class="tanda" id="tanda"></div>
+  <h2 id="h-judul"></h2>
+  <p id="h-isi"></p>
+  <div class="tombol-hasil">
+    <button class="tautan" id="h-balik">Kembali ke review</button>
+    <a class="tautan" href="/review">Daftar review</a>
+  </div>
+</section>
+
+<div class="tirai" id="tirai" hidden>
+  <div class="lembar" role="dialog" aria-modal="true">
+    <div data-lembar="acc">
+      <h3>ACC <span class="teks-kode"></span>?</h3>
+      <p>Tayang <span class="teks-jadwal"></span> di <span class="teks-kanal"></span>. Jadwalnya masih bisa digeser selama belum tayang.</p>
+      <div class="aksi">
+        <button class="acc" data-kirim="acc">Ya, jadwalkan</button>
+        <button class="batal" data-tutup>Kembali</button>
+      </div>
+    </div>
+    <div data-lembar="ganti" hidden>
+      <h3>Tayang kapan?</h3>
+      <div class="pilih" id="pilih"></div>
+      <div class="dua">
+        <label for="tgl">Tanggal lain<input id="tgl" type="date"></label>
+        <label for="jam">Jam (WIB)<input id="jam" type="time"></label>
+      </div>
+      <p class="galat" id="galat-jadwal" hidden></p>
+      <div class="aksi" style="margin-top:0">
+        <button class="acc" data-pakai id="tombol-pakai">Pakai jadwal ini</button>
+        <button class="batal" data-tutup>Kembali</button>
+      </div>
+    </div>
+    <div data-lembar="revisi" hidden>
+      <h3>Apa yang perlu diperbaiki?</h3>
+      <label for="cat-rev">Catatan, wajib diisi<textarea id="cat-rev" maxlength="1000" placeholder="Misalnya: judul kurang tajam, slide 3 angkanya dicek lagi"></textarea></label>
+      <div class="aksi">
+        <button class="acc" data-kirim="revisi" data-wajib="cat-rev" disabled>Kirim catatan revisi</button>
+        <button class="batal" data-tutup>Kembali</button>
+      </div>
+    </div>
+    <div data-lembar="stop" hidden>
+      <h3>Stop <span class="teks-kode"></span>?</h3>
+      <p>Draf ini tidak akan tayang.</p>
+      <label for="cat-stop">Alasan, wajib diisi<textarea id="cat-stop" maxlength="1000" placeholder="Misalnya: topiknya sudah basi"></textarea></label>
+      <div class="aksi">
+        <button class="acc bahaya" data-kirim="stop" data-wajib="cat-stop" disabled>Stop draf ini</button>
+        <button class="batal" data-tutup>Kembali</button>
+      </div>
+    </div>
+    <p class="galat" id="galat-kirim" hidden></p>
+  </div>
+</div>
+
+<script>
+(function () {
+  var GAMBAR = "https://khntypqoxcwntfnvewzy.supabase.co/storage/v1/object/public/";
+  var HARI = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  var BULAN = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+  var KANAL = { instagram: "Instagram", threads: "Threads", linkedin: "LinkedIn", facebook: "Facebook", x: "X" };
+  var $ = function (s) { return document.querySelector(s); };
+  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var kode = (location.pathname.match(/^\/review\/([A-Za-z0-9]{6})\/?$/) || [])[1];
+  if (kode) kode = kode.toUpperCase();
+  var K = null, jadwal = null, pantau = null;
+
+  /* ---------- waktu, semua dalam WIB apa pun zona perangkatnya */
+  function wib(d) {
+    var w = new Date(d.getTime() + 7 * 3600e3);
+    return { th: w.getUTCFullYear(), bl: w.getUTCMonth(), tg: w.getUTCDate(), hr: w.getUTCDay(),
+      jam: ("0" + w.getUTCHours()).slice(-2), mnt: ("0" + w.getUTCMinutes()).slice(-2),
+      iso: w.toISOString().slice(0, 10) };
+  }
+  function teksWaktu(d) {
+    var w = wib(d);
+    return HARI[w.hr] + ", " + w.tg + " " + BULAN[w.bl] + (w.th === wib(new Date()).th ? "" : " " + w.th) + ", " + w.jam + ":" + w.mnt + " WIB";
+  }
+  function dariWib(tgl, jam) { return new Date(tgl + "T" + jam + ":00+07:00"); }
+  // Sama dengan slot_berikut(): slot terdekat yang paling sedikit 30 menit di depan.
+  function slotBerikut(slot, jumlah) {
+    var kini = Date.now(), hasil = [];
+    for (var h = 0; h < 4 && hasil.length < jumlah; h++) {
+      var tgl = wib(new Date(kini + h * 864e5)).iso;
+      slot.slice().sort().forEach(function (s) {
+        var t = dariWib(tgl, s);
+        if (t.getTime() >= kini + 30 * 60e3 && hasil.length < jumlah) hasil.push(t);
+      });
+    }
+    return hasil;
+  }
+
+  /* ---------- pembantu */
+  function api(cara, tubuh) {
+    var q = kode && cara === "GET" ? "?kode=" + kode : "";
+    return fetch("/api/review" + q, cara === "GET" ? { cache: "no-store" } : { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(tubuh) })
+      .then(function (r) {
+        if (r.status === 401) { location.replace("/login?lanjut=" + encodeURIComponent(location.pathname)); throw new Error("sesi"); }
+        return r.json();
+      });
+  }
+  function urlSlide(path, n) { return GAMBAR + String(path).replace(/^\/+/, "").replace(/01\.png$/, (n < 10 ? "0" : "") + n + ".png"); }
+  function layar(id) {
+    ["muat", "daftar", "review", "hasil"].forEach(function (x) { $("#" + x).hidden = x !== id; });
+    window.scrollTo(0, 0);
+  }
+  function gagalMuat(pesan) {
+    var m = $("#muat"); m.textContent = pesan; m.classList.add("bad"); layar("muat");
+  }
+  function namaKanal(k) { return KANAL[k] || k; }
+
+  document.getElementById("keluar").addEventListener("click", function () {
+    fetch("/api/keluar", { method: "POST" }).finally(function () { location.replace("/login"); });
+  });
+
+  /* ---------- daftar */
+  function kartu(r, ket) {
+    var li = document.createElement("li"), a = document.createElement("a"), img = document.createElement("img"), b = document.createElement("b"), s = document.createElement("small");
+    a.href = "/review/" + r.kode;
+    img.src = GAMBAR + String(r.gambar_path).replace(/^\/+/, ""); img.alt = ""; img.loading = "lazy";
+    b.textContent = r.judul || r.kode;
+    s.textContent = r.kode + " · " + ket;
+    a.appendChild(img); a.appendChild(b); a.appendChild(s); li.appendChild(a);
+    return li;
+  }
+  function muatDaftar() {
+    document.title = "Review kiriman BeritaSawit";
+    api("GET").then(function (j) {
+      if (!j.ok) return gagalMuat(j.alasan);
+      var tunggu = j.daftar.filter(function (r) { return r.status !== "terbit"; });
+      var terjadwal = j.daftar.filter(function (r) { return r.status === "terbit"; })
+        .sort(function (a, b) { return new Date(a.terbit_at) - new Date(b.terbit_at); });
+      tunggu.forEach(function (r) {
+        var d = wib(new Date(r.dibuat_at));
+        var ket = r.penyetuju_status === "revisi" ? "minta revisi" : r.status === "setuju" ? "belum terjadwal" : d.tg + " " + BULAN[d.bl];
+        $("#kisi-tunggu").appendChild(kartu(r, ket));
+      });
+      terjadwal.forEach(function (r) { $("#kisi-jadwal").appendChild(kartu(r, teksWaktu(new Date(r.terbit_at)))); });
+      $("#kosong-tunggu").hidden = tunggu.length > 0;
+      $("#kosong-jadwal").hidden = terjadwal.length > 0;
+      layar("daftar");
+    }).catch(function (e) { if (e.message !== "sesi") gagalMuat("Tidak tersambung, muat ulang halaman ini."); });
+  }
+
+  /* ---------- isi satu kiriman */
+  function jadwalAntre() { return (K.jadwal || []).filter(function (t) { return t.status === "antre"; }); }
+  function bolehPutus() { return ["draf", "dikirim", "setuju"].indexOf(K.status) >= 0; }
+  function bolehGeser() {
+    return K.status === "terbit" && jadwalAntre().some(function (t) { return new Date(t.dijadwalkan_at).getTime() > Date.now() + 5 * 60e3; });
+  }
+  function isiKiriman() {
+    document.title = "Review " + K.kode + " BeritaSawit";
+    $("#judul").textContent = K.judul || K.kode;
+    $$(".teks-kode").forEach(function (t) { t.textContent = K.kode; });
+    var st = $("#status"), antre = jadwalAntre();
+    st.className = "status";
+    if (bolehPutus()) {
+      st.textContent = (K.penyetuju_status === "revisi" ? "Minta revisi · " : K.status === "setuju" ? "Disetujui, belum terjadwal · " : "Menunggu keputusan · ") + K.kode;
+    } else if (K.status === "terbit") {
+      st.className = "status ok"; st.textContent = (antre.length ? "Terjadwal · " : "Sudah tayang · ") + K.kode;
+    } else {
+      st.className = "status bad"; st.textContent = (K.status === "tolak" ? "Distop · " : K.status + " · ") + K.kode;
+    }
+
+    var n = Math.max(1, Number(K.jumlah_slide) || 1), ul = $("#slide");
+    ul.innerHTML = ""; $("#titik").innerHTML = ""; $("#jempol").innerHTML = "";
+    for (var i = 1; i <= n; i++) {
+      var li = document.createElement("li"), img = document.createElement("img");
+      img.src = urlSlide(K.gambar_path, i); img.alt = "Slide " + i; img.draggable = false;
+      if (i > 2) img.loading = "lazy";
+      li.appendChild(img); ul.appendChild(li);
+      $("#titik").appendChild(document.createElement("i"));
+    }
+    $("#total").textContent = n;
+    $("#jempol").style.setProperty("--n", Math.max(n, 5));
+    pasangGeser();
+
+    // Peringatan: kegagalan terakhir dulu, lalu catatan model yang dulu ikut ke WA.
+    var p = K.keputusan, umum = $("#pengumuman");
+    umum.hidden = true;
+    if (p && p.status === "gagal" && p.hasil) { umum.textContent = "Keputusan terakhir gagal: " + p.hasil; umum.hidden = false; }
+    else if (bolehPutus() && K.alasan_status && /ditahan|gagal/i.test(K.alasan_status)) { umum.textContent = K.alasan_status; umum.hidden = false; }
+    var cat = String(K.catatan_model || "").split(/\s*\|\s*/).filter(function (x) { return x.trim(); });
+    $("#peringatan").hidden = !cat.length || !bolehPutus();
+    var pi = $("#peringatan-isi"); pi.innerHTML = "";
+    cat.forEach(function (c) { var l = document.createElement("li"); l.textContent = c; pi.appendChild(l); });
+
+    // Jadwal: yang sudah terjadwal memakai jadwal sungguhan, yang belum memakai slot bawaan.
+    var kanal = antre.length ? antre.map(function (t) { return t.platform; }) : (K.kanal || []);
+    var teksKanal = kanal.map(namaKanal).join(", ") || "Belum ada kanal";
+    $$(".teks-kanal, #teks-kanal").forEach(function (t) { t.textContent = teksKanal; });
+    if (antre.length) jadwal = new Date(antre[0].dijadwalkan_at);
+    else if (bolehPutus()) jadwal = slotBerikut(K.jam_slot || [], 1)[0] || new Date(Date.now() + 3600e3);
+    else jadwal = K.terbit_at ? new Date(K.terbit_at) : null;
+    tulisJadwal();
+    $("#kotak-jadwal").hidden = !jadwal;
+    $("#tombol-ganti").hidden = !(bolehPutus() || bolehGeser());
+    $("#bar").hidden = !bolehPutus();
+    $("#ruang-bar").hidden = !bolehPutus();
+
+    $("#caption").textContent = K.caption || "(caption kosong)";
+    $("#blok-komen").hidden = !K.komen;
+    $("#komen").textContent = K.komen || "";
+    var s = K.sumber, ps = $("#sumber");
+    ps.innerHTML = "";
+    $("#blok-sumber").hidden = !s;
+    if (s) {
+      if (s.link && /^https?:\/\//.test(s.link)) {
+        var a = document.createElement("a"); a.href = s.link; a.target = "_blank"; a.rel = "noopener noreferrer";
+        a.textContent = (s.penerbit ? s.penerbit + ": " : "") + (s.judul || s.link);
+        ps.appendChild(a);
+      } else ps.textContent = (s.penerbit || "") + (s.judul ? ": " + s.judul : "");
+    }
+  }
+  function tulisJadwal() {
+    if (!jadwal) return;
+    var t = teksWaktu(jadwal);
+    $("#teks-jadwal").textContent = t;
+    $$(".teks-jadwal").forEach(function (x) { x.textContent = t; });
+  }
+  function muatKiriman() {
+    api("GET").then(function (j) {
+      if (!j.ok) return gagalMuat(j.alasan);
+      K = j.konten;
+      isiKiriman();
+      var p = K.keputusan;
+      if (p && (p.status === "antre" || p.status === "diproses")) { layarTunggu(p.aksi); mulaiPantau(p.dibuat_at); }
+      else layar("review");
+    }).catch(function (e) { if (e.message !== "sesi") gagalMuat("Tidak tersambung, muat ulang halaman ini."); });
+  }
+
+  /* ---------- geser slide */
+  var butir = [], kini = 0;
+  function ke(i, halus) {
+    if (!butir.length) return;
+    i = Math.max(0, Math.min(butir.length - 1, i));
+    var ul = $("#slide");
+    ul.scrollTo({ left: butir[i].offsetLeft - ul.offsetLeft - (parseFloat(getComputedStyle(ul).paddingLeft) || 0), behavior: halus === false ? "auto" : "smooth" });
+    tandai(i);
+  }
+  function tandai(i) {
+    kini = i;
+    $("#ke").textContent = i + 1;
+    $$("#titik i").forEach(function (t, n) { t.className = n === i ? "on" : ""; });
+    $$("#jempol button").forEach(function (b, n) { b.setAttribute("aria-current", n === i); });
+    $("#kiri").disabled = i === 0;
+    $("#kanan").disabled = i === butir.length - 1;
+  }
+  function pasangGeser() {
+    butir = $$("#slide li");
+    butir.forEach(function (li, i) {
+      var w = document.createElement("li"), b = document.createElement("button"), m = document.createElement("img");
+      m.src = li.querySelector("img").src; m.alt = ""; m.loading = "lazy"; b.setAttribute("aria-label", "Slide " + (i + 1));
+      b.addEventListener("click", function () { ke(i); });
+      b.appendChild(m); w.appendChild(b); $("#jempol").appendChild(w);
+    });
+    tandai(0);
+  }
+  (function () {
+    var ul = $("#slide"), seret = null;
+    $("#kiri").addEventListener("click", function () { ke(kini - 1); });
+    $("#kanan").addEventListener("click", function () { ke(kini + 1); });
+    ul.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") { e.preventDefault(); ke(kini + 1); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); ke(kini - 1); }
+    });
+    ul.addEventListener("scroll", function () {
+      if (ul.classList.contains("seret") || butir.length < 2) return;
+      var lebar = butir[1].offsetLeft - butir[0].offsetLeft;
+      tandai(Math.max(0, Math.min(butir.length - 1, Math.round(ul.scrollLeft / lebar))));
+    }, { passive: true });
+    // Geser pakai mouse di PC. Sentuhan sudah ditangani scroll bawaan.
+    ul.addEventListener("pointerdown", function (e) {
+      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      seret = { x: e.clientX, kiri: ul.scrollLeft, awal: kini };
+      ul.classList.add("seret"); ul.setPointerCapture(e.pointerId);
+    });
+    ul.addEventListener("pointermove", function (e) { if (seret) ul.scrollLeft = seret.kiri - (e.clientX - seret.x); });
+    function lepas(e) {
+      if (!seret) return;
+      var d = e.clientX - seret.x, tuju = seret.awal + (d < -60 ? 1 : d > 60 ? -1 : 0);
+      seret = null;
+      ke(tuju);
+      setTimeout(function () { ul.classList.remove("seret"); }, 380);
+    }
+    ul.addEventListener("pointerup", lepas);
+    ul.addEventListener("pointercancel", lepas);
+  })();
+
+  /* ---------- lembar keputusan */
+  function tutup() { $("#tirai").hidden = true; $("#galat-kirim").hidden = true; }
+  function buka(nama) {
+    $$("[data-lembar]").forEach(function (l) { l.hidden = l.getAttribute("data-lembar") !== nama; });
+    $("#tirai").hidden = false;
+    $("#galat-kirim").hidden = true;
+    if (nama === "ganti") siapkanGanti();
+    tulisJadwal();
+    var f = document.querySelector("[data-lembar='" + nama + "'] textarea"); if (f) f.focus();
+  }
+  var calonJadwal = null;
+  function siapkanGanti() {
+    var hari = wib(new Date()).iso, besok = wib(new Date(Date.now() + 864e5)).iso, pilih = $("#pilih");
+    pilih.innerHTML = "";
+    calonJadwal = jadwal;
+    slotBerikut(K.jam_slot || [], 3).forEach(function (t) {
+      var w = wib(t), b = document.createElement("button"), jam = document.createElement("b");
+      jam.textContent = w.jam + ":" + w.mnt;
+      b.appendChild(jam);
+      b.appendChild(document.createTextNode(w.iso === hari ? "Hari ini" : w.iso === besok ? "Besok" : w.tg + " " + BULAN[w.bl].slice(0, 3)));
+      b.setAttribute("aria-pressed", String(t.getTime() === jadwal.getTime()));
+      b.setAttribute("data-t", t.toISOString());
+      pilih.appendChild(b);
+    });
+    var w = wib(jadwal);
+    $("#tgl").min = hari; $("#tgl").value = w.iso; $("#jam").value = w.jam + ":" + w.mnt;
+    $("#galat-jadwal").hidden = true;
+    $("#tombol-pakai").textContent = K.status === "terbit" ? "Geser ke jadwal ini" : "Pakai jadwal ini";
+  }
+  function ambilWaktuForm() {
+    var t = dariWib($("#tgl").value, $("#jam").value);
+    return isNaN(t) ? null : t;
+  }
+  function layarTunggu(aksi) {
+    var t = $("#tanda"); t.className = "tanda tunggu"; t.textContent = "";
+    $("#h-judul").textContent = aksi === "geser" ? "Sedang menggeser jadwal" : aksi === "acc" ? "Sedang menjadwalkan" : "Sedang mencatat";
+    $("#h-isi").textContent = "Biasanya kurang dari satu menit. Halaman ini boleh ditutup, hasilnya tetap jalan.";
+    $("#h-balik").hidden = true;
+    layar("hasil");
+  }
+  function layarHasil(p) {
+    var ok = p.status === "selesai", t = $("#tanda");
+    t.className = "tanda" + (ok && p.aksi !== "stop" ? "" : " stop");
+    t.textContent = ok ? (p.aksi === "stop" ? "■" : "✓") : "!";
+    $("#h-judul").textContent = !ok ? "Belum berhasil" : p.aksi === "stop" ? K.kode + " distop" : p.aksi === "revisi" ? "Catatan revisi tercatat" : p.aksi === "geser" ? "Jadwal digeser" : "Terjadwal";
+    $("#h-isi").textContent = p.hasil || "";
+    $("#h-balik").hidden = false;
+    layar("hasil");
+  }
+  function mulaiPantau(dibuat) {
+    clearInterval(pantau);
+    var mulai = Date.now();
+    pantau = setInterval(function () {
+      api("GET").then(function (j) {
+        if (!j.ok) return;
+        var p = j.konten.keputusan;
+        if (p && (p.status === "selesai" || p.status === "gagal") && (!dibuat || p.dibuat_at === dibuat)) {
+          clearInterval(pantau); K = j.konten; isiKiriman(); layarHasil(p);
+        } else if (Date.now() - mulai > 240e3) {
+          clearInterval(pantau);
+          $("#h-isi").textContent = "Masih diproses lebih lama dari biasanya. Muat ulang halaman ini beberapa menit lagi untuk melihat hasilnya.";
+        }
+      }).catch(function () {});
+    }, 4000);
+  }
+  function kirim(aksi) {
+    var catatan = aksi === "revisi" ? $("#cat-rev").value.trim() : aksi === "stop" ? $("#cat-stop").value.trim() : null;
+    var tombol = $$("[data-kirim='" + aksi + "'], #tombol-pakai");
+    tombol.forEach(function (b) { b.disabled = true; });
+    return api("POST", { kode: K.kode, aksi: aksi, waktu: aksi === "acc" || aksi === "geser" ? jadwal.toISOString() : null, catatan: catatan })
+      .then(function (j) {
+        tombol.forEach(function (b) { b.disabled = false; });
+        if (!j.ok) { var g = $("#galat-kirim"); g.textContent = j.alasan || "Gagal mengirim keputusan."; g.hidden = false; return; }
+        tutup(); layarTunggu(aksi); mulaiPantau(null);
+      })
+      .catch(function (e) {
+        tombol.forEach(function (b) { b.disabled = false; });
+        if (e.message !== "sesi") { var g = $("#galat-kirim"); g.textContent = "Tidak tersambung, keputusan belum tercatat. Coba lagi."; g.hidden = false; }
+      });
+  }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    if (b.hasAttribute("data-buka")) buka(b.getAttribute("data-buka"));
+    if (b.hasAttribute("data-tutup")) tutup();
+    if (b.hasAttribute("data-kirim")) kirim(b.getAttribute("data-kirim"));
+    if (b.hasAttribute("data-t")) {
+      $$("#pilih button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      calonJadwal = new Date(b.getAttribute("data-t"));
+      var w = wib(calonJadwal); $("#tgl").value = w.iso; $("#jam").value = w.jam + ":" + w.mnt;
+    }
+    if (b.hasAttribute("data-pakai")) {
+      var t = calonJadwal || ambilWaktuForm(), g = $("#galat-jadwal");
+      if (!t || t.getTime() < Date.now() + 5 * 60e3) { g.textContent = "Pilih waktu paling sedikit 5 menit dari sekarang."; g.hidden = false; return; }
+      jadwal = t; tulisJadwal();
+      if (K.status === "terbit") { kirim("geser"); return; }
+      tutup();
+    }
+    if (b.id === "h-balik") { layar("review"); }
+  });
+  document.addEventListener("input", function (e) {
+    var id = e.target.id;
+    if (id === "cat-rev" || id === "cat-stop") document.querySelector("[data-wajib='" + id + "']").disabled = !e.target.value.trim();
+    if (id === "tgl" || id === "jam") {
+      $$("#pilih button").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+      calonJadwal = ambilWaktuForm();
+    }
+  });
+  $("#tirai").addEventListener("click", function (e) { if (e.target.id === "tirai") tutup(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") tutup(); });
+
+  if (kode) muatKiriman(); else muatDaftar();
+})();
+</script>
+</body>
+</html>
