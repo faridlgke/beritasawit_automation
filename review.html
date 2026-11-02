@@ -122,6 +122,15 @@
   .aksi .acc { min-height: 50px; }
   .aksi .acc.bahaya { background: var(--bad); color: var(--bad-ink); }
   .aksi .acc:disabled { opacity: 0.45; cursor: not-allowed; }
+  .opsi { display: grid; gap: 8px; margin: 12px 0 14px; }
+  .opsi button { display: grid; grid-template-columns: 20px 1fr auto; gap: 2px 12px; align-items: center; text-align: left; background: none; border: 1px solid var(--rule-2); border-radius: 10px; padding: 11px 14px; min-height: 58px; }
+  .opsi button i { grid-row: 1 / span 2; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--rule-2); }
+  .opsi button b { font-weight: 600; font-size: 0.98rem; line-height: 1.3; }
+  .opsi button span { grid-column: 2; font-size: 0.82rem; color: var(--ink-2); line-height: 1.3; }
+  .opsi button em { grid-column: 3; grid-row: 1 / span 2; font-style: normal; font-size: 0.74rem; font-weight: 600; color: var(--ok); }
+  .opsi button:hover { border-color: var(--ink-2); }
+  .opsi button[aria-checked="true"] { border: 2px solid var(--accent); background: var(--hover); padding: 10px 13px; }
+  .opsi button[aria-checked="true"] i { border: 6px solid var(--accent); }
   .batal { background: none; border: 0; min-height: 44px; font-weight: 600; color: var(--ink-2); }
 
   #hasil { max-width: 560px; padding: 56px 20px 32px; }
@@ -243,10 +252,16 @@
 <div class="tirai" id="tirai" hidden>
   <div class="lembar" role="dialog" aria-modal="true">
     <div data-lembar="acc">
-      <h3>ACC <span class="teks-kode"></span>?</h3>
-      <p>Tayang <span class="teks-jadwal"></span> di <span class="teks-kanal"></span>. Jadwalnya masih bisa digeser selama belum tayang.</p>
-      <div class="aksi">
-        <button class="acc" data-kirim="acc">Ya, jadwalkan</button>
+      <h3>ACC <span class="teks-kode"></span>, tayang kapan?</h3>
+      <p>Tayang di <span class="teks-kanal"></span>. Jadwalnya masih bisa digeser selama belum tayang.</p>
+      <div class="opsi" id="opsi-acc" role="radiogroup" aria-label="Waktu tayang"></div>
+      <div class="dua" id="waktu-sendiri" hidden>
+        <label for="tgl-acc">Tanggal<input id="tgl-acc" type="date"></label>
+        <label for="jam-acc">Jam (WIB)<input id="jam-acc" type="time" step="300"></label>
+      </div>
+      <p class="galat" id="galat-acc" hidden></p>
+      <div class="aksi" style="margin-top:4px">
+        <button class="acc" id="tombol-acc">ACC</button>
         <button class="batal" data-tutup>Kembali</button>
       </div>
     </div>
@@ -456,7 +471,7 @@
     else jadwal = K.terbit_at ? new Date(K.terbit_at) : null;
     tulisJadwal();
     $("#kotak-jadwal").hidden = !jadwal;
-    $("#tombol-ganti").hidden = !(bolehPutus() || bolehGeser());
+    $("#tombol-ganti").hidden = !bolehGeser();
     $("#bar").hidden = !bolehPutus();
     $("#ruang-bar").hidden = !bolehPutus();
 
@@ -556,6 +571,7 @@
     $("#tirai").hidden = false;
     $("#galat-kirim").hidden = true;
     if (nama === "ganti") siapkanGanti();
+    if (nama === "acc") siapkanAcc();
     tulisJadwal();
     var f = document.querySelector("[data-lembar='" + nama + "'] textarea"); if (f) f.focus();
   }
@@ -577,6 +593,55 @@
     $("#tgl").min = hari; $("#tgl").value = w.iso; $("#jam").value = w.jam + ":" + w.mnt;
     $("#galat-jadwal").hidden = true;
     $("#tombol-pakai").textContent = K.status === "terbit" ? "Geser ke jadwal ini" : "Pakai jadwal ini";
+  }
+  /* ---------- pilihan waktu di lembar ACC */
+  var OPSI = [], pilihan = 0;
+  function namaHari(t) {
+    var w = wib(t), kini = wib(new Date()), bsk = wib(new Date(Date.now() + 864e5));
+    return w.iso === kini.iso ? "Hari ini" : w.iso === bsk.iso ? "Besok" : HARI[w.hr] + ", " + w.tg + " " + BULAN[w.bl];
+  }
+  function siapkanAcc() {
+    var slot = slotBerikut(K.jam_slot || [], 3);
+    OPSI = [{ jenis: "sekarang", judul: "Sekarang", ket: "Tayang sekitar 10 menit lagi" }];
+    slot.forEach(function (t, i) {
+      var w = wib(t);
+      OPSI.push({ jenis: "slot", t: t, judul: namaHari(t) + ", " + w.jam + ":" + w.mnt + " WIB", ket: i === 0 ? "Jam tayang terdekat" : "Jam tayang rutin", tanda: i === 0 ? "Disarankan" : "" });
+    });
+    OPSI.push({ jenis: "sendiri", judul: "Pilih tanggal dan jam", ket: "Atur waktu sendiri" });
+    var w0 = wib(slot[0] || new Date(Date.now() + 3600e3));
+    $("#tgl-acc").min = wib(new Date()).iso; $("#tgl-acc").value = w0.iso; $("#jam-acc").value = "21:00";
+    pilih(1);
+  }
+  function pilih(i) {
+    pilihan = i;
+    var box = $("#opsi-acc"); box.innerHTML = "";
+    OPSI.forEach(function (o, n) {
+      var b = document.createElement("button"); b.type = "button"; b.setAttribute("role", "radio"); b.setAttribute("aria-checked", String(n === i)); b.setAttribute("data-opsi", n);
+      b.appendChild(document.createElement("i"));
+      var j = document.createElement("b"); j.textContent = o.judul; b.appendChild(j);
+      if (o.tanda) { var e = document.createElement("em"); e.textContent = o.tanda; b.appendChild(e); }
+      var s = document.createElement("span"); s.textContent = o.ket; b.appendChild(s);
+      box.appendChild(b);
+    });
+    $("#waktu-sendiri").hidden = OPSI[i].jenis !== "sendiri";
+    tulisTombolAcc();
+  }
+  function waktuPilihan() {
+    var o = OPSI[pilihan];
+    if (o.jenis === "sekarang") return new Date(Date.now() + 10 * 60e3);
+    if (o.jenis === "slot") return o.t;
+    var t = dariWib($("#tgl-acc").value, $("#jam-acc").value);
+    return isNaN(t) ? null : t;
+  }
+  function tulisTombolAcc() {
+    var o = OPSI[pilihan], t = waktuPilihan(), g = $("#galat-acc"), b = $("#tombol-acc");
+    var sah = t && t.getTime() >= Date.now() + 5 * 60e3 && t.getTime() <= Date.now() + 90 * 864e5;
+    g.hidden = sah || o.jenis !== "sendiri";
+    g.textContent = !t ? "Isi tanggal dan jamnya." : t.getTime() < Date.now() ? "Waktu itu sudah lewat." : "Pilih waktu 5 menit sampai 90 hari dari sekarang.";
+    b.disabled = !sah;
+    if (!sah) { b.textContent = "ACC"; return; }
+    var w = wib(t);
+    b.textContent = o.jenis === "sekarang" ? "ACC, tayang sekarang" : "ACC, tayang " + namaHari(t).replace("Hari ini", "hari ini").replace("Besok", "besok") + " " + w.jam + ":" + w.mnt;
   }
   function ambilWaktuForm() {
     var t = dariWib($("#tgl").value, $("#jam").value);
@@ -616,7 +681,7 @@
   }
   function kirim(aksi) {
     var catatan = aksi === "revisi" ? $("#cat-rev").value.trim() : aksi === "stop" ? $("#cat-stop").value.trim() : null;
-    var tombol = $$("[data-kirim='" + aksi + "'], #tombol-pakai");
+    var tombol = $$("[data-kirim='" + aksi + "'], #tombol-pakai, #tombol-acc");
     tombol.forEach(function (b) { b.disabled = true; });
     return api("POST", { kode: K.kode, aksi: aksi, waktu: aksi === "acc" || aksi === "geser" ? jadwal.toISOString() : null, catatan: catatan })
       .then(function (j) {
@@ -635,6 +700,8 @@
     if (b.hasAttribute("data-buka")) buka(b.getAttribute("data-buka"));
     if (b.hasAttribute("data-tutup")) tutup();
     if (b.hasAttribute("data-kirim")) kirim(b.getAttribute("data-kirim"));
+    if (b.hasAttribute("data-opsi")) pilih(Number(b.getAttribute("data-opsi")));
+    if (b.id === "tombol-acc") { jadwal = waktuPilihan(); tulisJadwal(); kirim("acc"); }
     if (b.hasAttribute("data-t")) {
       $$("#pilih button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
       calonJadwal = new Date(b.getAttribute("data-t"));
@@ -651,6 +718,7 @@
   });
   document.addEventListener("input", function (e) {
     var id = e.target.id;
+    if (id === "tgl-acc" || id === "jam-acc") tulisTombolAcc();
     if (id === "cat-rev" || id === "cat-stop") document.querySelector("[data-wajib='" + id + "']").disabled = !e.target.value.trim();
     if (id === "tgl" || id === "jam") {
       $$("#pilih button").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
