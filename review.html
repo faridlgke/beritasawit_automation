@@ -338,6 +338,32 @@
   function gagalMuat(pesan) {
     var m = $("#muat"); m.textContent = pesan; m.classList.add("bad"); layar("muat");
   }
+  // Sama dengan pecah_paragraf() di tulis_konten.py, yang juga dipakai saat terbit, jadi
+  // yang tampil di sini sama dengan yang tayang. Isi basis data tidak diubah.
+  function pecahKalimat(teks) {
+    var hasil = [];
+    teks.trim().split(/(?<=[.!?])\s+(?=[A-Z0-9"“‘(])/).forEach(function (k) {
+      if (hasil.length && /(?:^|[\s(])(?:[A-Z]|[A-Za-z]\.[A-Za-z]|Dr|Drs|Dra|Prof|Ir|Hj|No|Rp|Tbk|PT|dkk|dll|Jl|Kab|Kec|Yth)\.$/.test(hasil[hasil.length - 1])) hasil[hasil.length - 1] += " " + k;
+      else hasil.push(k);
+    });
+    return hasil;
+  }
+  function rapikanCaption(teks) {
+    var hasil = [];
+    String(teks || "").split(/\n\s*\n/).forEach(function (par) {
+      if (par.trim().indexOf("\n") >= 0) { hasil.push(par.trim()); return; }
+      par = par.replace(/\s+/g, " ").trim();
+      if (!par) return;
+      var kini = [], kata = 0;
+      pecahKalimat(par).forEach(function (k) {
+        var n = k.trim().split(/\s+/).length;
+        if (kini.length && (kini.length >= 3 || kata + n > 55 || /^(Sumber:|Konten ini edukasi)/.test(k))) { hasil.push(kini.join(" ")); kini = []; kata = 0; }
+        kini.push(k); kata += n;
+      });
+      if (kini.length) hasil.push(kini.join(" "));
+    });
+    return hasil.join("\n\n");
+  }
   function namaKanal(k) { return KANAL[k] || k; }
   // Baris lama di basis data masih memakai istilah teknis.
   function bahasaOrang(s) {
@@ -434,7 +460,7 @@
     $("#bar").hidden = !bolehPutus();
     $("#ruang-bar").hidden = !bolehPutus();
 
-    $("#caption").textContent = K.caption || "(caption kosong)";
+    $("#caption").textContent = rapikanCaption(K.caption) || "(caption kosong)";
     $("#blok-komen").hidden = !K.komen;
     $("#komen").textContent = K.komen || "";
     var s = K.sumber, ps = $("#sumber");
