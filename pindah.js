@@ -32,6 +32,7 @@
     "#pindah a[aria-current]{font-weight:700}" +
     "#pindah a[aria-current]::after{content:'di sini';margin-left:auto;font-size:11px;font-weight:500;opacity:.6}" +
     "#pindah .pnd-titik{width:9px;height:9px;border-radius:50%;flex:none;box-shadow:0 0 0 1px rgba(127,127,127,.35)}" +
+    "@media (max-width:599px){#pindah.sebaris .pnd-nama{display:none}#pindah.sebaris>button{padding:8px 10px}}" +
     "@media (prefers-reduced-motion:reduce){#pindah .pnd-panah{transition:none}}";
   document.head.appendChild(gaya);
 
@@ -42,6 +43,7 @@
   var tombol = document.createElement("button");
   tombol.type = "button";
   tombol.setAttribute("aria-expanded", "false");
+  tombol.setAttribute("aria-label", "Pindah brand");
   tombol.setAttribute("aria-controls", "pindah-daftar");
   tombol.innerHTML = '<span class="pnd-titik"></span><span class="pnd-nama"></span><span class="pnd-panah" aria-hidden="true">▼</span>';
   tombol.querySelector(".pnd-titik").style.background = kini ? kini.warna : "transparent";
